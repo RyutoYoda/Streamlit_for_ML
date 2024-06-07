@@ -12,8 +12,6 @@ from sklearn.compose import ColumnTransformer
 import lightgbm as lgb
 from catboost import CatBoostRegressor, CatBoostClassifier
 
-# タイトル
-load_dotenv()
 st.set_page_config(
     page_title="DragonMachinelearning",
     page_icon="🏋️"
