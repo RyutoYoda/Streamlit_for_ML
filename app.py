@@ -24,11 +24,12 @@ st.markdown("""
     h1 {
         font-family: 'Patrick Hand', sans-serif;
         color: #C0C0C0;
+        font-weight: bold;
     }
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<h1>DragonMachinelearning🏋️</h1>', unsafe_allow_html=True)
+st.markdown('<h1>DragonMachinelearning</h1>', unsafe_allow_html=True)
 # 画像をタイトルの下に追加する関数
 def load_image(image_path):
     with open(image_path, "rb") as img_file:
