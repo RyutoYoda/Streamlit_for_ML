@@ -1,3 +1,4 @@
+import base64
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -8,10 +9,11 @@ import plotly.graph_objects as go
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-from sklearn.compose import ColumnTransformer
 import lightgbm as lgb
 from catboost import CatBoostRegressor, CatBoostClassifier
+from dotenv import load_dotenv
 
+load_dotenv()
 st.set_page_config(
     page_title="DragonMachinelearning",
     page_icon="🏋️"
@@ -45,8 +47,7 @@ with st.expander("アプリの説明と使い方を表示"):
         4. 使用する機械学習モデルを選択し、モデルのトレーニングと予測を行います。
         5. 結果を確認し、予測と実際の値のグラフを比較します。
     """)
-    
-# サイドバーに表示
+
 st.sidebar.markdown("### 機械学習に使用するcsvファイルを入力してください")
 # ファイルアップロード
 uploaded_files = st.sidebar.file_uploader("CSVファイルを選択してください", accept_multiple_files=False)
