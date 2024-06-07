@@ -15,6 +15,19 @@ from catboost import CatBoostRegressor, CatBoostClassifier
 # タイトル
 st.title("DragonMachinelearning🏋️")
 
+# アプリの説明と使い方のトグル
+if st.checkbox("アプリの説明と使い方を表示"):
+    st.markdown("""
+        ### アプリの説明
+        このアプリは、機械学習モデルを使用してデータを分析し、予測を行うためのツールです。
+        以下の手順に従って使用してください。
+
+        1. サイドバーからCSVファイルをアップロードします。
+        2. アップロードされたデータを確認し、必要に応じて可視化を行います。
+        3. 説明変数と目的変数を選択し、エンコーディングの方法を選びます。
+        4. 使用する機械学習モデルを選択し、モデルのトレーニングと予測を行います。
+        5. 結果を確認し、予測と実際の値のグラフを比較します。
+    """)
 
 # サイドバーに表示
 st.sidebar.markdown("### 機械学習に使用するcsvファイルを入力してください")
@@ -47,7 +60,7 @@ if uploaded_files:
     df_columns = df.columns
 
     # データフレームを表示
-    st.markdown("### 入力データ")
+    st.markdown("### 分析&学習データセット")
     st.dataframe(df)
 
     # plotlyで可視化。X軸,Y軸,Z軸を選択できる
