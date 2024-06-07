@@ -37,7 +37,7 @@ if uploaded_files:
     plt.scatter(df[x], df[y])
     plt.xlabel(x, fontsize=18)
     plt.ylabel(y, fontsize=18)
-    st.pyplot(fig)
+    st.pyplot(plt)
 
     # seabornのペアプロットで可視化。複数の変数を選択できる。
     st.markdown("### 可視化 ペアプロット")
@@ -50,12 +50,12 @@ if uploaded_files:
     execute_pairplot = st.button("ペアプロット描画")
     # 実行ボタンを押したら下記を表示
     if execute_pairplot:
-        df_sns = df[item]
+        df_sns = df[item].copy()
         df_sns["hue"] = df[hue]
 
         # streamlit上でseabornのペアプロットを表示させる
         fig = sns.pairplot(df_sns, hue="hue")
-        st.pyplot(fig)
+        st.pyplot(plt)
 
     st.markdown("### モデリング")
     # 説明変数は複数選択式
@@ -185,4 +185,5 @@ if uploaded_files:
             fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値'))
             fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値'))
             st.plotly_chart(fig)
+
 
