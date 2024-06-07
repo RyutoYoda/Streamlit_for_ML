@@ -18,8 +18,17 @@ st.set_page_config(
     page_title="DragonMachinelearning",
     page_icon="🏋️"
 )
-st.markdown('<h1 style="color: #C0C0C0;">DragonMachinelearning</h1>', unsafe_allow_html=True)
+st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
+    h1 {
+        font-family: 'Patrick Hand', sans-serif;
+        color: #C0C0C0;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
+st.markdown('<h1>DragonMachinelearning🏋️</h1>', unsafe_allow_html=True)
 # 画像をタイトルの下に追加する関数
 def load_image(image_path):
     with open(image_path, "rb") as img_file:
