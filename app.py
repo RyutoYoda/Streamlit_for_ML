@@ -13,7 +13,28 @@ import lightgbm as lgb
 from catboost import CatBoostRegressor, CatBoostClassifier
 
 # タイトル
-st.title("DragonMachinelearning🏋️")
+load_dotenv()
+st.set_page_config(
+    page_title="DragonMachinelearning",
+    page_icon="🏋️"
+)
+st.markdown('<h1 style="color: #C0C0C0;">DragonMachinelearning🏋️</h1>', unsafe_allow_html=True)
+
+# 画像をタイトルの下に追加する関数
+def load_image(image_path):
+    with open(image_path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
+
+image_path = "スクリーンショット 2024-05-16 12.33.11.png"  # 画像ファイルのパスを指定
+image_base64 = load_image(image_path)
+st.markdown(
+    f"""
+    <div style="text-align: center;">
+        <img src="data:image/png;base64,{image_base64}" alt="筋トレ" style="width: 100%;"/>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 with st.expander("アプリの説明と使い方を表示"):
     st.markdown("""
