@@ -32,12 +32,12 @@ def preprocess_data(df, ex, ob, encoding_type):
         df_ob = LabelEncoder().fit_transform(df_ob)
     elif encoding_type == "One-Hot Encoding":
         df_ex = pd.get_dummies(df_ex)
-        df_ob = pd.get_dummies(df_ob).iloc[:, 0]
+        df_ob = LabelEncoder().fit_transform(df_ob)  # 目的変数もエンコードする
 
     df_ex = df_ex.apply(pd.to_numeric, errors='coerce')
     df_ob = pd.to_numeric(df_ob, errors='coerce')
     df_ex = df_ex.fillna(df_ex.mean())
-    df_ob = df_ob.fillna(df_ob.mean())
+    df_ob = pd.Series(df_ob).fillna(np.mean(df_ob))  # 目的変数をシリーズとして扱う
     return df_ex, df_ob
 
 # ファイルがアップロードされたら以下が実行される
@@ -140,4 +140,5 @@ if uploaded_files:
             fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値'))
             fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値'))
             st.plotly_chart(fig)
+
 
