@@ -18,14 +18,14 @@ st.set_page_config(
     page_title="DragonMachinelearning",
     page_icon="🏋️"
 )
-st.markdown('<h1 style="color: #C0C0C0;">DragonMachinelearning🏋️</h1>', unsafe_allow_html=True)
+st.markdown('<h1 style="color: #C0C0C0;">DragonMachinelearning</h1>', unsafe_allow_html=True)
 
 # 画像をタイトルの下に追加する関数
 def load_image(image_path):
     with open(image_path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode()
 
-image_path = "スクリーンショット 2024-06-07 17.36.47.png"  # 画像ファイルのパスを指定
+image_path = "スクリーンショット 2024-06-07 17.57.16.png"  # 画像ファイルのパスを指定
 image_base64 = load_image(image_path)
 st.markdown(
     f"""
