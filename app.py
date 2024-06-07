@@ -50,29 +50,54 @@ if uploaded_files:
     st.markdown("### 入力データ")
     st.dataframe(df)
 
-    # matplotlibで可視化。X軸,Y軸を選択できる
-    st.markdown("### 可視化 単変量")
+    # plotlyで可視化。X軸,Y軸,Z軸を選択できる
+    st.markdown("### 可視化 3Dプロット")
     x = st.selectbox("X軸", df_columns)
     y = st.selectbox("Y軸", df_columns)
-    fig, ax = plt.subplots()
-    ax.scatter(df[x], df[y])
-    ax.set_xlabel(x)
-    ax.set_ylabel(y)
-    st.pyplot(fig)
+    z = st.selectbox("Z軸", df_columns, index=2) if len(df_columns) > 2 else None
 
-    # seabornのペアプロットで可視化。複数の変数を選択できる。
-    st.markdown("### 可視化 ペアプロット")
-    item = st.multiselect("可視化するカラム", df_columns)
-    hue = st.selectbox("色の基準", df_columns)
+    if z:
+        fig = go.Figure(data=[go.Scatter3d(
+            x=df[x],
+            y=df[y],
+            z=df[z],
+            mode='markers',
+            marker=dict(size=5)
+        )])
+        fig.update_layout(scene=dict(
+            xaxis_title=x,
+            yaxis_title=y,
+            zaxis_title=z
+        ))
+    else:
+        fig = go.Figure(data=[go.Scatter(
+            x=df[x],
+            y=df[y],
+            mode='markers'
+        )])
+        fig.update_layout(xaxis_title=x, yaxis_title=y)
+    
+    st.plotly_chart(fig)
 
-    if st.button("ペアプロット描画"):
-        df_sns = df[item].copy()
-        df_sns["hue"] = df[hue]
-        fig = sns.pairplot(df_sns, hue="hue")
-        st.pyplot(fig)
+    # 散布図と相関係数
+    st.markdown("### 散布図と相関係数")
+    x_corr = st.selectbox("X軸（相関）", df_columns, key='x_corr')
+    y_corr = st.selectbox("Y軸（相関）", df_columns, key='y_corr')
+
+    if st.button("散布図と相関係数を表示"):
+        corr_coef = df[x_corr].corr(df[y_corr])
+        st.write(f"相関係数 ({x_corr}, {y_corr}): {corr_coef:.2f}")
+
+        fig = go.Figure(data=[go.Scatter(
+            x=df[x_corr],
+            y=df[y_corr],
+            mode='markers'
+        )])
+        fig.update_layout(xaxis_title=x_corr, yaxis_title=y_corr)
+        st.plotly_chart(fig)
 
     st.markdown("### モデリング")
-    ex = st.multiselect("説明変数を選択してください（複数選択可）", df_columns)
+    ex = st.multiselect("説明変数を選択してください（複数選択可、最大3つ）", df_columns, max_selections=3)
     ob = st.selectbox("目的変数を選択してください", df_columns)
     encoding_type = st.selectbox("エンコーディングタイプを選択してください", ["Label Encoding", "One-Hot Encoding"])
     ml_menu = st.selectbox("実施する機械学習のタイプを選択してください",
@@ -90,8 +115,8 @@ if uploaded_files:
             st.write("テストスコア:", lr.score(X_test, y_test))
 
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値'))
-            fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値'))
+            fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
+            fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
             st.plotly_chart(fig)
 
     elif ml_menu == "ロジスティック回帰分析":
@@ -106,8 +131,8 @@ if uploaded_files:
             st.write("テストスコア:", lr.score(X_test, y_test))
 
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値'))
-            fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値'))
+            fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
+            fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
             st.plotly_chart(fig)
 
     elif ml_menu == "LightGBM":
@@ -122,8 +147,8 @@ if uploaded_files:
             st.write("テストスコア:", lgbm.score(X_test, y_test))
 
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値'))
-            fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値'))
+            fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
+            fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
             st.plotly_chart(fig)
 
     elif ml_menu == "Catboost":
@@ -138,8 +163,6 @@ if uploaded_files:
             st.write("テストスコア:", cb.score(X_test, y_test))
 
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値'))
-            fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値'))
+            fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
+            fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
             st.plotly_chart(fig)
-
-
