@@ -15,10 +15,8 @@ from catboost import CatBoostRegressor, CatBoostClassifier
 # タイトル
 st.title("DragonMachinelearning🏋️")
 
-# アプリの説明と使い方のトグル
-if st.checkbox("アプリの説明と使い方を表示"):
+with st.expander("アプリの説明と使い方を表示"):
     st.markdown("""
-        ### アプリの説明
         このアプリは、機械学習モデルを使用してデータを分析し、予測を行うためのツールです。
         以下の手順に従って使用してください。
 
@@ -28,7 +26,7 @@ if st.checkbox("アプリの説明と使い方を表示"):
         4. 使用する機械学習モデルを選択し、モデルのトレーニングと予測を行います。
         5. 結果を確認し、予測と実際の値のグラフを比較します。
     """)
-
+    
 # サイドバーに表示
 st.sidebar.markdown("### 機械学習に使用するcsvファイルを入力してください")
 # ファイルアップロード
