@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import japanize_matplotlib
 import seaborn as sns
 import plotly.graph_objects as go
 from sklearn.model_selection import train_test_split
@@ -12,11 +13,11 @@ import lightgbm as lgb
 from catboost import CatBoostRegressor, CatBoostClassifier
 
 # タイトル
-st.title("機械学習アプリ")
-st.write("streamlitで実装")
+st.title("DragonMachinelearning🏋️")
+
 
 # サイドバーに表示
-st.sidebar.markdown("### 機械学習に用いるcsvファイルを入力してください")
+st.sidebar.markdown("### 機械学習に使用するcsvファイルを入力してください")
 # ファイルアップロード
 uploaded_files = st.sidebar.file_uploader("CSVファイルを選択してください", accept_multiple_files=False)
 
