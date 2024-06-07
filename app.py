@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 st.set_page_config(
-    page_title="DragonMachinelearning",
+    page_title="DragonMachineLearning",
     page_icon="🏋️"
 )
 st.markdown("""
@@ -29,7 +29,8 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<h1>Dragon Machine learning</h1>', unsafe_allow_html=True)
+st.markdown('<h1>Dragon Machine Learning</h1>', unsafe_allow_html=True)
+
 # 画像をタイトルの下に追加する関数
 def load_image(image_path):
     with open(image_path, "rb") as img_file:
