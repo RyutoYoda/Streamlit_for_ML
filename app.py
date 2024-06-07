@@ -25,7 +25,7 @@ def load_image(image_path):
     with open(image_path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode()
 
-image_path = "スクリーンショット 2024-05-16 12.33.11.png"  # 画像ファイルのパスを指定
+image_path = "スクリーンショット 2024-06-07 17.36.47.png"  # 画像ファイルのパスを指定
 image_base64 = load_image(image_path)
 st.markdown(
     f"""
