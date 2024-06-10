@@ -105,48 +105,29 @@ if uploaded_files:
 
     # プロットを作成
     if z:
-        fig = go.Figure()
-        fig.add_trace(go.Scatter3d(
+        fig = go.Figure(data=[go.Scatter3d(
             x=df[x],
             y=df[y],
             z=df[z],
             mode='markers',
-            marker=dict(size=5, color=df[x], colorscale=[[0, x_color], [1, x_color]], colorbar=dict(title=x))
-        ))
-        fig.add_trace(go.Scatter3d(
-            x=df[x],
-            y=df[y],
-            z=df[z],
-            mode='markers',
-            marker=dict(size=5, color=df[y], colorscale=[[0, y_color], [1, y_color]], colorbar=dict(title=y))
-        ))
-        fig.add_trace(go.Scatter3d(
-            x=df[x],
-            y=df[y],
-            z=df[z],
-            mode='markers',
-            marker=dict(size=5, color=df[z], colorscale=[[0, z_color], [1, z_color]], colorbar=dict(title=z))
-        ))
+            marker=dict(size=5, color=x_color)
+        )])
         fig.update_layout(scene=dict(
             xaxis_title=x,
             yaxis_title=y,
-            zaxis_title=z
+            zaxis_title=z,
+            xaxis=dict(color=x_color),
+            yaxis=dict(color=y_color),
+            zaxis=dict(color=z_color)
         ))
     else:
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(
+        fig = go.Figure(data=[go.Scatter(
             x=df[x],
             y=df[y],
             mode='markers',
-            marker=dict(color=df[x], colorscale=[[0, x_color], [1, x_color]], colorbar=dict(title=x))
-        ))
-        fig.add_trace(go.Scatter(
-            x=df[x],
-            y=df[y],
-            mode='markers',
-            marker=dict(color=df[y], colorscale=[[0, y_color], [1, y_color]], colorbar=dict(title=y))
-        ))
-        fig.update_layout(xaxis_title=x, yaxis_title=y)
+            marker=dict(color=x_color)
+        )])
+        fig.update_layout(xaxis_title=x, yaxis_title=y, xaxis=dict(color=x_color), yaxis=dict(color=y_color))
     
     st.plotly_chart(fig)
     # 散布図と相関係数
