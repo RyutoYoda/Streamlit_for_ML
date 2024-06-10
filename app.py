@@ -12,7 +12,6 @@ import lightgbm as lgb
 from catboost import CatBoostRegressor, CatBoostClassifier
 from dotenv import load_dotenv
 import base64
-from io import BytesIO
 
 load_dotenv()
 st.set_page_config(
@@ -84,8 +83,9 @@ def preprocess_data(df, ex, ob, encoding_type):
     df_ob = pd.Series(df_ob).fillna(np.mean(df_ob))  # 目的変数をシリーズとして扱う
     return df_ex, df_ob
 
-def add_prediction_to_dataframe(df, predictions, ob):
-    df[f'{ob}_予測'] = predictions
+def add_prediction_to_dataframe(df, predictions, start_index, ob):
+    df[f'{ob}_予測'] = np.nan
+    df.loc[start_index:start_index+len(predictions)-1, f'{ob}_予測'] = predictions
     return df
 
 def download_link(object_to_download, download_filename, download_link_text):
@@ -192,7 +192,8 @@ if uploaded_files:
             st.plotly_chart(fig)
 
             # 予測結果を追加してCSVで保存
-            df_result = add_prediction_to_dataframe(df, y_pred, ob)
+            start_index = X_train.shape[0]  # テストデータのインデックスの開始位置
+            df_result = add_prediction_to_dataframe(df, y_pred, start_index, ob)
             tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
             st.markdown(tmp_download_link, unsafe_allow_html=True)
 
@@ -213,7 +214,8 @@ if uploaded_files:
             st.plotly_chart(fig)
 
             # 予測結果を追加してCSVで保存
-            df_result = add_prediction_to_dataframe(df, y_pred, ob)
+            start_index = X_train.shape[0]  # テストデータのインデックスの開始位置
+            df_result = add_prediction_to_dataframe(df, y_pred, start_index, ob)
             tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
             st.markdown(tmp_download_link, unsafe_allow_html=True)
 
@@ -234,7 +236,8 @@ if uploaded_files:
             st.plotly_chart(fig)
 
             # 予測結果を追加してCSVで保存
-            df_result = add_prediction_to_dataframe(df, y_pred, ob)
+            start_index = X_train.shape[0]  # テストデータのインデックスの開始位置
+            df_result = add_prediction_to_dataframe(df, y_pred, start_index, ob)
             tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
             st.markdown(tmp_download_link, unsafe_allow_html=True)
 
@@ -255,6 +258,7 @@ if uploaded_files:
             st.plotly_chart(fig)
 
             # 予測結果を追加してCSVで保存
-            df_result = add_prediction_to_dataframe(df, y_pred, ob)
+            start_index = X_train.shape[0]  # テストデータのインデックスの開始位置
+            df_result = add_prediction_to_dataframe(df, y_pred, start_index, ob)
             tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
             st.markdown(tmp_download_link, unsafe_allow_html=True)
