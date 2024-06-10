@@ -29,7 +29,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<h1>Draco AI🐉</h1>', unsafe_allow_html=True)
+st.markdown('<h1>Draco AI🩵</h1>', unsafe_allow_html=True)
 
 # 画像をタイトルの下に追加する関数
 def load_image(image_path):
