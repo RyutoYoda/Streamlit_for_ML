@@ -98,13 +98,19 @@ if uploaded_files:
     y = st.selectbox("Y軸", df_columns)
     z = st.selectbox("Z軸", df_columns, index=2) if len(df_columns) > 2 else None
 
+    # 軸ごとの色を選択
+    x_color = st.color_picker('X軸の色', '#636EFA')
+    y_color = st.color_picker('Y軸の色', '#EF553B')
+    z_color = st.color_picker('Z軸の色', '#00CC96') if z else None
+
+    # プロットを作成
     if z:
         fig = go.Figure(data=[go.Scatter3d(
             x=df[x],
             y=df[y],
             z=df[z],
             mode='markers',
-            marker=dict(size=5)
+            marker=dict(size=5, color=df[x], colorscale=x_color)
         )])
         fig.update_layout(scene=dict(
             xaxis_title=x,
@@ -115,7 +121,8 @@ if uploaded_files:
         fig = go.Figure(data=[go.Scatter(
             x=df[x],
             y=df[y],
-            mode='markers'
+            mode='markers',
+            marker=dict(color=df[x], colorscale=x_color)
         )])
         fig.update_layout(xaxis_title=x, yaxis_title=y)
     
