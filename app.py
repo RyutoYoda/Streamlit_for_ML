@@ -110,8 +110,8 @@ if uploaded_files:
             x=df[x],
             y=df[y],
             z=df[z],
-            mode='markers+text',
-            text=df[label],
+            mode='markers',
+            text=[f'{label}: {label_value}' for label_value in df[label]],
             marker=dict(size=5, color=x_color)
         )])
         fig.update_layout(scene=dict(
@@ -126,14 +126,13 @@ if uploaded_files:
         fig = go.Figure(data=[go.Scatter(
             x=df[x],
             y=df[y],
-            mode='markers+text',
-            text=df[label],
+            mode='markers',
+            text=[f'{label}: {label_value}' for label_value in df[label]],
             marker=dict(color=x_color)
         )])
         fig.update_layout(xaxis_title=x, yaxis_title=y, xaxis=dict(color=x_color), yaxis=dict(color=y_color))
     
     st.plotly_chart(fig)
-    
     # 散布図と相関係数
     st.markdown("### 散布図と相関係数")
     x_corr = st.selectbox("X軸（相関）", df_columns, key='x_corr')
