@@ -9,4 +9,5 @@ lightgbm
 catboost
 plotly
 python-dotenv
+openpyxl
 
