@@ -110,7 +110,7 @@ if uploaded_files:
             y=df[y],
             z=df[z],
             mode='markers',
-            text=[f'x: {x_value}<br>y: {y_value}<br>z: {z_value}' for x_value, y_value, z_value in zip(df[x], df[y], df[z])],
+            text=[f'x: {x_value}, y: {y_value}, z: {z_value}' for x_value, y_value, z_value in zip(df[x], df[y], df[z])],
             marker=dict(size=5, color=x_color)
         )])
         fig.update_layout(scene=dict(
@@ -126,7 +126,7 @@ if uploaded_files:
             x=df[x],
             y=df[y],
             mode='markers',
-            text=[f'x: {x_value}<br>y: {y_value}' for x_value, y_value in zip(df[x], df[y])],
+            text=[f'x: {x_value}, y: {y_value}' for x_value, y_value in zip(df[x], df[y])],
             marker=dict(color=x_color)
         )])
         fig.update_layout(xaxis_title=x, yaxis_title=y, xaxis=dict(color=x_color), yaxis=dict(color=y_color))
