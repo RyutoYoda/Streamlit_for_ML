@@ -110,21 +110,24 @@ if uploaded_files:
             y=df[y],
             z=df[z],
             mode='markers',
-            marker=dict(size=5, color=df[x], colorscale=x_color)
+            marker=dict(size=5, color=x_color)
         )])
         fig.update_layout(scene=dict(
             xaxis_title=x,
             yaxis_title=y,
-            zaxis_title=z
+            zaxis_title=z,
+            xaxis=dict(color=x_color),
+            yaxis=dict(color=y_color),
+            zaxis=dict(color=z_color)
         ))
     else:
         fig = go.Figure(data=[go.Scatter(
             x=df[x],
             y=df[y],
             mode='markers',
-            marker=dict(color=df[x], colorscale=x_color)
+            marker=dict(color=x_color)
         )])
-        fig.update_layout(xaxis_title=x, yaxis_title=y)
+        fig.update_layout(xaxis_title=x, yaxis_title=y, xaxis=dict(color=x_color), yaxis=dict(color=y_color))
     
     st.plotly_chart(fig)
 
