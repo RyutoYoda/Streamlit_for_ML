@@ -12,6 +12,7 @@ import lightgbm as lgb
 from catboost import CatBoostRegressor, CatBoostClassifier
 from dotenv import load_dotenv
 import base64
+from io import BytesIO
 
 load_dotenv()
 st.set_page_config(
@@ -52,16 +53,16 @@ with st.expander("アプリの説明と使い方を表示"):
         このアプリは、機械学習モデルを使用してデータを分析し、予測を行うためのツールです。
         以下の手順に従って使用してください。
 
-        1. サイドバーからCSVファイルをアップロードします。
+        1. サイドバーからCSVまたはExcelファイルをアップロードします。
         2. アップロードされたデータを確認し、必要に応じて可視化を行います。
         3. 説明変数と目的変数を選択し、エンコーディングの方法を選びます。
         4. 使用する機械学習モデルを選択し、モデルのトレーニングと予測を行います。
         5. 結果を確認し、予測と実際の値のグラフを比較します。
     """)
 
-st.sidebar.markdown("### 機械学習に使用するcsvファイルを入力してください")
+st.sidebar.markdown("### 機械学習に使用するCSVまたはExcelファイルを入力してください")
 # ファイルアップロード
-uploaded_files = st.sidebar.file_uploader("CSVファイルを選択してください", accept_multiple_files=False)
+uploaded_files = st.sidebar.file_uploader("ファイルを選択してください", type=['csv', 'xlsx'], accept_multiple_files=False)
 
 def preprocess_data(df, ex, ob, encoding_type):
     df_ex = df[ex].copy()
@@ -83,9 +84,25 @@ def preprocess_data(df, ex, ob, encoding_type):
     df_ob = pd.Series(df_ob).fillna(np.mean(df_ob))  # 目的変数をシリーズとして扱う
     return df_ex, df_ob
 
+def add_prediction_to_dataframe(df, predictions, ob):
+    df[f'{ob}_予測'] = predictions
+    return df
+
+def download_link(object_to_download, download_filename, download_link_text):
+    if isinstance(object_to_download, pd.DataFrame):
+        object_to_download = object_to_download.to_csv(index=False)
+
+    b64 = base64.b64encode(object_to_download.encode()).decode()
+
+    return f'<a href="data:file/txt;base64,{b64}" download="{download_filename}">{download_link_text}</a>'
+
 # ファイルがアップロードされたら以下が実行される
 if uploaded_files:
-    df = pd.read_csv(uploaded_files)
+    if uploaded_files.name.endswith('.csv'):
+        df = pd.read_csv(uploaded_files)
+    elif uploaded_files.name.endswith('.xlsx'):
+        df = pd.read_excel(uploaded_files)
+        
     df_columns = df.columns
 
     # データフレームを表示
@@ -132,6 +149,7 @@ if uploaded_files:
         fig.update_layout(xaxis_title=x, yaxis_title=y, xaxis=dict(color=x_color), yaxis=dict(color=y_color))
     
     st.plotly_chart(fig)
+    
     # 散布図と相関係数
     st.markdown("### 散布図と相関係数")
     x_corr = st.selectbox("X軸（相関）", df_columns, key='x_corr')
@@ -150,7 +168,7 @@ if uploaded_files:
         st.plotly_chart(fig)
 
     st.markdown("### モデリング")
-    ex = st.multiselect("説明変数を選択してください（複数選択可、最大3つ）", df_columns, max_selections=3)
+    ex = st.multiselect("説明変数を選択してください（複数選択可）", df_columns)
     ob = st.selectbox("目的変数を選択してください", df_columns)
     encoding_type = st.selectbox("エンコーディングタイプを選択してください", ["Label Encoding", "One-Hot Encoding"])
     ml_menu = st.selectbox("実施する機械学習のタイプを選択してください",
@@ -173,6 +191,11 @@ if uploaded_files:
             fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
             st.plotly_chart(fig)
 
+            # 予測結果を追加してCSVで保存
+            df_result = add_prediction_to_dataframe(df, y_pred, ob)
+            tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
+            st.markdown(tmp_download_link, unsafe_allow_html=True)
+
     elif ml_menu == "ロジスティック回帰分析":
         if st.button("実行"):
             lr = LogisticRegression()
@@ -188,6 +211,11 @@ if uploaded_files:
             fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
             fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
             st.plotly_chart(fig)
+
+            # 予測結果を追加してCSVで保存
+            df_result = add_prediction_to_dataframe(df, y_pred, ob)
+            tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
+            st.markdown(tmp_download_link, unsafe_allow_html=True)
 
     elif ml_menu == "LightGBM":
         if st.button("実行"):
@@ -205,6 +233,11 @@ if uploaded_files:
             fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
             st.plotly_chart(fig)
 
+            # 予測結果を追加してCSVで保存
+            df_result = add_prediction_to_dataframe(df, y_pred, ob)
+            tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
+            st.markdown(tmp_download_link, unsafe_allow_html=True)
+
     elif ml_menu == "Catboost":
         if st.button("実行"):
             cb = CatBoostRegressor(verbose=0)
@@ -220,3 +253,8 @@ if uploaded_files:
             fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
             fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
             st.plotly_chart(fig)
+
+            # 予測結果を追加してCSVで保存
+            df_result = add_prediction_to_dataframe(df, y_pred, ob)
+            tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
+            st.markdown(tmp_download_link, unsafe_allow_html=True)
