@@ -110,7 +110,7 @@ if uploaded_files:
             y=df[y],
             z=df[z],
             mode='markers',
-            marker=dict(size=5, color=x_color)
+            marker=dict(size=5, color=df[x], colorscale=[[0, x_color], [1, x_color]])
         )])
         fig.update_layout(scene=dict(
             xaxis_title=x,
@@ -125,7 +125,7 @@ if uploaded_files:
             x=df[x],
             y=df[y],
             mode='markers',
-            marker=dict(color=x_color)
+            marker=dict(color=df[x], colorscale=[[0, x_color], [1, x_color]])
         )])
         fig.update_layout(xaxis_title=x, yaxis_title=y, xaxis=dict(color=x_color), yaxis=dict(color=y_color))
     
