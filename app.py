@@ -97,7 +97,6 @@ if uploaded_files:
     x = st.selectbox("X軸", df_columns)
     y = st.selectbox("Y軸", df_columns)
     z = st.selectbox("Z軸", df_columns, index=2) if len(df_columns) > 2 else None
-    label = st.selectbox("ラベル", df_columns)
 
     # 軸ごとの色を選択
     x_color = st.color_picker('X軸の色', '#636EFA')
@@ -111,7 +110,7 @@ if uploaded_files:
             y=df[y],
             z=df[z],
             mode='markers',
-            text=[f'{label}: {label_value}' for label_value in df[label]],
+            text=[f'x: {x_value}<br>y: {y_value}<br>z: {z_value}' for x_value, y_value, z_value in zip(df[x], df[y], df[z])],
             marker=dict(size=5, color=x_color)
         )])
         fig.update_layout(scene=dict(
@@ -127,7 +126,7 @@ if uploaded_files:
             x=df[x],
             y=df[y],
             mode='markers',
-            text=[f'{label}: {label_value}' for label_value in df[label]],
+            text=[f'x: {x_value}<br>y: {y_value}' for x_value, y_value in zip(df[x], df[y])],
             marker=dict(color=x_color)
         )])
         fig.update_layout(xaxis_title=x, yaxis_title=y, xaxis=dict(color=x_color), yaxis=dict(color=y_color))
