@@ -23,7 +23,7 @@ st.markdown("""
     @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
     h1 {
         font-family: 'Patrick Hand', sans-serif;
-        color: #C0C0C0;
+        color: #6699cc;
         font-weight: bold;
     }
     </style>
