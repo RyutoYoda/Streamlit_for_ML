@@ -1,4 +1,3 @@
-import base64
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -12,6 +11,7 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 import lightgbm as lgb
 from catboost import CatBoostRegressor, CatBoostClassifier
 from dotenv import load_dotenv
+import base64
 
 load_dotenv()
 st.set_page_config(
@@ -97,6 +97,7 @@ if uploaded_files:
     x = st.selectbox("X軸", df_columns)
     y = st.selectbox("Y軸", df_columns)
     z = st.selectbox("Z軸", df_columns, index=2) if len(df_columns) > 2 else None
+    label = st.selectbox("ラベル", df_columns)
 
     # 軸ごとの色を選択
     x_color = st.color_picker('X軸の色', '#636EFA')
@@ -109,7 +110,8 @@ if uploaded_files:
             x=df[x],
             y=df[y],
             z=df[z],
-            mode='markers',
+            mode='markers+text',
+            text=df[label],
             marker=dict(size=5, color=x_color)
         )])
         fig.update_layout(scene=dict(
@@ -124,12 +126,14 @@ if uploaded_files:
         fig = go.Figure(data=[go.Scatter(
             x=df[x],
             y=df[y],
-            mode='markers',
+            mode='markers+text',
+            text=df[label],
             marker=dict(color=x_color)
         )])
         fig.update_layout(xaxis_title=x, yaxis_title=y, xaxis=dict(color=x_color), yaxis=dict(color=y_color))
     
     st.plotly_chart(fig)
+    
     # 散布図と相関係数
     st.markdown("### 散布図と相関係数")
     x_corr = st.selectbox("X軸（相関）", df_columns, key='x_corr')
@@ -153,12 +157,13 @@ if uploaded_files:
     encoding_type = st.selectbox("エンコーディングタイプを選択してください", ["Label Encoding", "One-Hot Encoding"])
     ml_menu = st.selectbox("実施する機械学習のタイプを選択してください",
                            ["重回帰分析", "ロジスティック回帰分析", "LightGBM", "Catboost"])
+    test_size = st.slider("テストデータの割合を選択してください", 0.1, 0.9, 0.3, 0.05)
 
     if ml_menu == "重回帰分析":
         if st.button("実行"):
             lr = LinearRegression()
             df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
-            X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=0.3)
+            X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
             lr.fit(X_train, y_train)
             y_pred = lr.predict(X_test)
 
@@ -174,7 +179,7 @@ if uploaded_files:
         if st.button("実行"):
             lr = LogisticRegression()
             df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
-            X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=0.3)
+            X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
             lr.fit(X_train, y_train)
             y_pred = lr.predict(X_test)
 
@@ -190,7 +195,7 @@ if uploaded_files:
         if st.button("実行"):
             lgbm = lgb.LGBMRegressor()
             df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
-            X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=0.3)
+            X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
             lgbm.fit(X_train, y_train)
             y_pred = lgbm.predict(X_test)
 
@@ -206,7 +211,7 @@ if uploaded_files:
         if st.button("実行"):
             cb = CatBoostRegressor(verbose=0)
             df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
-            X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=0.3)
+            X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
             cb.fit(X_train, y_train)
             y_pred = cb.predict(X_test)
 
