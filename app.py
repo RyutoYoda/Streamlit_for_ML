@@ -47,7 +47,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-with st.expander("アプリの説明と使い方を表示"):
+with st.expander("Draco AIの説明と使い方を表示"):
     st.markdown("""
         このアプリは、機械学習モデルを使用してデータを分析し、予測を行うためのツールです。
         以下の手順に従って使用してください。
