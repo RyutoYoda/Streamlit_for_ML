@@ -351,7 +351,7 @@ if uploaded_model and st.sidebar.button("モデルをロードして予測を行
         train_score, test_score = evaluate_model(model, X_train, X_test, y_train, y_test, eval_metric)
         st.write(f"トレーニングスコア: {train_score}")
         st.write(f"テストスコア: {test_score}")
-        
+
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=list(range(len(df_ob))), y=df_ob, mode='lines', name='実際の値', line=dict(color='blue')))
         fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
