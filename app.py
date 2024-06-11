@@ -12,6 +12,7 @@ import lightgbm as lgb
 from catboost import CatBoostRegressor, CatBoostClassifier
 from dotenv import load_dotenv
 import base64
+import joblib  # 追加
 
 load_dotenv()
 st.set_page_config(
@@ -175,6 +176,9 @@ if uploaded_files:
                            ["重回帰分析", "ロジスティック回帰分析", "LightGBM", "Catboost"])
     test_size = st.slider("テストデータの割合を選択してください", 0.1, 0.9, 0.3, 0.05)
 
+    # モデル保存のための変数
+    model_filename = "trained_model.pkl"
+
     if ml_menu == "重回帰分析":
         if st.button("実行"):
             lr = LinearRegression()
@@ -190,6 +194,10 @@ if uploaded_files:
             fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
             fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
             st.plotly_chart(fig)
+
+            # モデルを保存
+            joblib.dump(lr, model_filename)
+            st.success(f"モデルが{model_filename}として保存されました")
 
             # 予測結果を追加してCSVで保存
             start_index = X_train.shape[0]  # テストデータのインデックスの開始位置
@@ -213,6 +221,10 @@ if uploaded_files:
             fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
             st.plotly_chart(fig)
 
+            # モデルを保存
+            joblib.dump(lr, model_filename)
+            st.success(f"モデルが{model_filename}として保存されました")
+
             # 予測結果を追加してCSVで保存
             start_index = X_train.shape[0]  # テストデータのインデックスの開始位置
             df_result = add_prediction_to_dataframe(df, y_pred, start_index, ob)
@@ -234,6 +246,10 @@ if uploaded_files:
             fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
             fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
             st.plotly_chart(fig)
+
+            # モデルを保存
+            joblib.dump(lgbm, model_filename)
+            st.success(f"モデルが{model_filename}として保存されました")
 
             # 予測結果を追加してCSVで保存
             start_index = X_train.shape[0]  # テストデータのインデックスの開始位置
@@ -257,8 +273,32 @@ if uploaded_files:
             fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
             st.plotly_chart(fig)
 
+            # モデルを保存
+            joblib.dump(cb, model_filename)
+            st.success(f"モデルが{model_filename}として保存されました")
+
             # 予測結果を追加してCSVで保存
             start_index = X_train.shape[0]  # テストデータのインデックスの開始位置
             df_result = add_prediction_to_dataframe(df, y_pred, start_index, ob)
             tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
             st.markdown(tmp_download_link, unsafe_allow_html=True)
+
+# モデルをロードして予測を行う
+st.sidebar.markdown("### 保存されたモデルをロードして予測を行う")
+if st.sidebar.button("モデルをロードして予測を行う"):
+    try:
+        model = joblib.load(model_filename)
+        df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
+        y_pred = model.predict(df_ex)
+        
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=list(range(len(df_ob))), y=df_ob, mode='lines', name='実際の値', line=dict(color='blue')))
+        fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
+        st.plotly_chart(fig)
+
+        # 予測結果を追加してCSVで保存
+        df_result = add_prediction_to_dataframe(df, y_pred, 0, ob)
+        tmp_download_link = download_link(df_result, 'ロードしたモデルの予測結果.csv', '予測結果をダウンロード')
+        st.markdown(tmp_download_link, unsafe_allow_html=True)
+    except Exception as e:
+        st.error(f"モデルのロードに失敗しました: {e}")
