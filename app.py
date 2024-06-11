@@ -177,7 +177,22 @@ if uploaded_files:
     encoding_type = st.selectbox("エンコーディングタイプを選択してください", ["Label Encoding", "One-Hot Encoding"])
     ml_menu = st.selectbox("実施する機械学習のタイプを選択してください",
                            ["重回帰分析", "ロジスティック回帰分析", "LightGBM", "Catboost"])
-    test_size = st.slider("テストデータの割合を選択してください", 0.1, 0.9, 0.3, 0.05)
+
+    # 時系列データのための期間設定
+    use_time_series = st.sidebar.checkbox("時系列予測を行う")
+    if use_time_series:
+        with st.sidebar.expander("期間設定"):
+            date_column = st.selectbox("日付列を選択してください", [None] + list(df.columns), index=0)
+            if date_column:
+                df[date_column] = pd.to_datetime(df[date_column])
+                min_date, max_date = df[date_column].min(), df[date_column].max()
+                train_period = st.slider("トレーニングデータ期間を選択してください", min_value=min_date, max_value=max_date, value=(min_date, max_date))
+                test_period = st.slider("テストデータ期間を選択してください", min_value=min_date, max_value=max_date, value=(min_date, max_date))
+
+                train_mask = (df[date_column] >= train_period[0]) & (df[date_column] <= train_period[1])
+                test_mask = (df[date_column] >= test_period[0]) & (df[date_column] <= test_period[1])
+    else:
+        test_size = st.slider("テストデータの割合を選択してください", 0.1, 0.9, 0.3, 0.05)
 
     # モデル保存のための変数
     model_filename = "trained_model.pkl"
@@ -186,31 +201,31 @@ if uploaded_files:
     eval_metric = st.selectbox("評価指標を選択してください", ["R2スコア", "MAPE"])
     cv_option = st.selectbox("評価方法を選択してください", ["ホールドアウト法", "交差検証法"])
 
-    def evaluate_model(model, X, y, cv_option, eval_metric):
-        if cv_option == "交差検証法":
-            scores = cross_val_score(model, X, y, cv=5, scoring='r2' if eval_metric == "R2スコア" else 'neg_mean_absolute_percentage_error')
-            if eval_metric == "R2スコア":
-                return scores.mean(), scores
-            else:
-                return -scores.mean(), -scores
+    def evaluate_model(model, X_train, X_test, y_train, y_test, eval_metric):
+        train_score = model.score(X_train, y_train)
+        if eval_metric == "R2スコア":
+            test_score = model.score(X_test, y_test)
         else:
-            if eval_metric == "R2スコア":
-                return model.score(X, y), None
-            else:
-                y_pred = model.predict(X)
-                return mean_absolute_percentage_error(y, y_pred), None
+            y_pred = model.predict(X_test)
+            test_score = mean_absolute_percentage_error(y_test, y_pred)
+        return train_score, test_score
 
     if ml_menu == "重回帰分析":
         if st.button("実行"):
             lr = LinearRegression()
             df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
-            X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
-            lr.fit(X_train, y_train)
-            score, cv_scores = evaluate_model(lr, X_test, y_test, cv_option, eval_metric)
 
-            st.write(f"{eval_metric}:", score)
-            if cv_scores is not None:
-                st.write("交差検証のスコア:", cv_scores)
+            if use_time_series and date_column:
+                X_train, X_test = df_ex[train_mask], df_ex[test_mask]
+                y_train, y_test = df_ob[train_mask], df_ob[test_mask]
+            else:
+                X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
+
+            lr.fit(X_train, y_train)
+            train_score, test_score = evaluate_model(lr, X_train, X_test, y_train, y_test, eval_metric)
+
+            st.write(f"トレーニングスコア: {train_score}")
+            st.write(f"テストスコア: {test_score}")
 
             y_pred = lr.predict(X_test)
             fig = go.Figure()
@@ -234,13 +249,18 @@ if uploaded_files:
         if st.button("実行"):
             lr = LogisticRegression()
             df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
-            X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
-            lr.fit(X_train, y_train)
-            score, cv_scores = evaluate_model(lr, X_test, y_test, cv_option, eval_metric)
 
-            st.write(f"{eval_metric}:", score)
-            if cv_scores is not None:
-                st.write("交差検証のスコア:", cv_scores)
+            if use_time_series and date_column:
+                X_train, X_test = df_ex[train_mask], df_ex[test_mask]
+                y_train, y_test = df_ob[train_mask], df_ob[test_mask]
+            else:
+                X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
+
+            lr.fit(X_train, y_train)
+            train_score, test_score = evaluate_model(lr, X_train, X_test, y_train, y_test, eval_metric)
+
+            st.write(f"トレーニングスコア: {train_score}")
+            st.write(f"テストスコア: {test_score}")
 
             y_pred = lr.predict(X_test)
             fig = go.Figure()
@@ -264,13 +284,18 @@ if uploaded_files:
         if st.button("実行"):
             lgbm = lgb.LGBMRegressor()
             df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
-            X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
-            lgbm.fit(X_train, y_train)
-            score, cv_scores = evaluate_model(lgbm, X_test, y_test, cv_option, eval_metric)
 
-            st.write(f"{eval_metric}:", score)
-            if cv_scores is not None:
-                st.write("交差検証のスコア:", cv_scores)
+            if use_time_series and date_column:
+                X_train, X_test = df_ex[train_mask], df_ex[test_mask]
+                y_train, y_test = df_ob[train_mask], df_ob[test_mask]
+            else:
+                X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
+
+            lgbm.fit(X_train, y_train)
+            train_score, test_score = evaluate_model(lgbm, X_train, X_test, y_train, y_test, eval_metric)
+
+            st.write(f"トレーニングスコア: {train_score}")
+            st.write(f"テストスコア: {test_score}")
 
             y_pred = lgbm.predict(X_test)
             fig = go.Figure()
@@ -294,13 +319,18 @@ if uploaded_files:
         if st.button("実行"):
             cb = CatBoostRegressor(verbose=0)
             df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
-            X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
-            cb.fit(X_train, y_train)
-            score, cv_scores = evaluate_model(cb, X_test, y_test, cv_option, eval_metric)
 
-            st.write(f"{eval_metric}:", score)
-            if cv_scores is not None:
-                st.write("交差検証のスコア:", cv_scores)
+            if use_time_series and date_column:
+                X_train, X_test = df_ex[train_mask], df_ex[test_mask]
+                y_train, y_test = df_ob[train_mask], df_ob[test_mask]
+            else:
+                X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
+
+            cb.fit(X_train, y_train)
+            train_score, test_score = evaluate_model(cb, X_train, X_test, y_train, y_test, eval_metric)
+
+            st.write(f"トレーニングスコア: {train_score}")
+            st.write(f"テストスコア: {test_score}")
 
             y_pred = cb.predict(X_test)
             fig = go.Figure()
@@ -327,7 +357,19 @@ if uploaded_model and st.sidebar.button("モデルをロードして予測を行
     try:
         model = joblib.load(uploaded_model)
         df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
+        
+        # スコア計算用に分割
+        if use_time_series and date_column:
+            X_train, X_test = df_ex[train_mask], df_ex[test_mask]
+            y_train, y_test = df_ob[train_mask], df_ob[test_mask]
+        else:
+            X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
+
         y_pred = model.predict(df_ex)
+
+        train_score, test_score = evaluate_model(model, X_train, X_test, y_train, y_test, eval_metric)
+        st.write(f"トレーニングスコア: {train_score}")
+        st.write(f"テストスコア: {test_score}")
         
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=list(range(len(df_ob))), y=df_ob, mode='lines', name='実際の値', line=dict(color='blue')))
