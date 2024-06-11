@@ -179,12 +179,9 @@ if uploaded_files:
                            ["重回帰分析", "ロジスティック回帰分析", "LightGBM", "Catboost"])
 
     # 時系列データのための期間設定
-use_time_series = st.checkbox("時系列予測を行う")
-if use_time_series:
-    # 日付型の列のみを選択可能にする
-    date_columns = df.select_dtypes(include=[np.datetime64]).columns.tolist()
-    if date_columns:
-        date_column = st.selectbox("日付列を選択してください", date_columns)
+    use_time_series = st.checkbox("時系列予測を行う")
+    if use_time_series:
+        date_column = st.selectbox("日付列を選択してください", df_columns)
         df[date_column] = pd.to_datetime(df[date_column], errors='coerce')  # 日付型に強制変換
         min_date, max_date = df[date_column].min(), df[date_column].max()
         train_period = st.slider("トレーニングデータ期間を選択してください", min_value=min_date, max_value=max_date, value=(min_date, max_date))
@@ -193,9 +190,7 @@ if use_time_series:
         train_mask = (df[date_column] >= train_period[0]) & (df[date_column] <= train_period[1])
         test_mask = (df[date_column] >= test_period[0]) & (df[date_column] <= test_period[1])
     else:
-        st.error("データには有効な日付列が含まれていません。")
-else:
-    test_size = st.slider("テストデータの割合を選択してください", 0.1, 0.9, 0.3, 0.05)
+        test_size = st.slider("テストデータの割合を選択してください", 0.1, 0.9, 0.3, 0.05)
 
     # モデル保存のための変数
     model_filename = "trained_model.pkl"
