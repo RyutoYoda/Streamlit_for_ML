@@ -33,7 +33,6 @@ st.markdown("""
 
 st.markdown('<h1>Draco AI🪬</h1>', unsafe_allow_html=True)
 
-# 画像をタイトルの下に追加する関数
 def load_image(image_path):
     with open(image_path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode()
@@ -62,7 +61,6 @@ with st.expander("Draco AIの説明と使い方を表示"):
     """)
 
 st.sidebar.markdown("### 機械学習に使用するCSVまたはExcelファイルを入力してください")
-# ファイルアップロード
 uploaded_files = st.sidebar.file_uploader("ファイルを選択してください", type=['csv', 'xlsx'], accept_multiple_files=False)
 
 def preprocess_data(df, ex, ob, encoding_type):
@@ -100,7 +98,6 @@ def download_link(object_to_download, download_filename, download_link_text):
     b64 = base64.b64encode(object_to_download.encode()).decode()
     return f'<a href="data:file/txt;base64,{b64}" download="{download_filename}">{download_link_text}</a>'
 
-# ファイルがアップロードされたら以下が実行される
 if uploaded_files:
     if uploaded_files.name.endswith('.csv'):
         df = pd.read_csv(uploaded_files)
@@ -109,22 +106,18 @@ if uploaded_files:
         
     df_columns = df.columns
 
-    # データフレームを表示
     st.markdown("### 分析&学習データセット")
     st.dataframe(df)
 
-    # plotlyで可視化。X軸,Y軸,Z軸を選択できる
     st.markdown("### 可視化 3Dプロット")
     x = st.selectbox("X軸", df_columns)
     y = st.selectbox("Y軸", df_columns)
     z = st.selectbox("Z軸", df_columns, index=2) if len(df_columns) > 2 else None
 
-    # 軸ごとの色を選択
     x_color = st.color_picker('X軸の色', '#636EFA')
     y_color = st.color_picker('Y軸の色', '#EF553B')
     z_color = st.color_picker('Z軸の色', '#00CC96') if z else None
 
-    # プロットを作成
     if z:
         fig = go.Figure(data=[go.Scatter3d(
             x=df[x],
@@ -154,7 +147,6 @@ if uploaded_files:
     
     st.plotly_chart(fig)
     
-    # 散布図と相関係数
     st.markdown("### 散布図と相関係数")
     x_corr = st.selectbox("X軸（相関）", df_columns, key='x_corr')
     y_corr = st.selectbox("Y軸（相関）", df_columns, key='y_corr')
@@ -178,7 +170,6 @@ if uploaded_files:
     ml_menu = st.selectbox("実施する機械学習のタイプを選択してください",
                            ["重回帰分析", "ロジスティック回帰分析", "LightGBM", "Catboost"])
 
-    # 時系列データのための期間設定
     use_time_series = st.checkbox("時系列予測を行う")
     if use_time_series:
         date_column = st.selectbox("日付列を選択してください", [None] + list(df.columns), index=0)
@@ -193,10 +184,8 @@ if uploaded_files:
     else:
         test_size = st.slider("テストデータの割合を選択してください", 0.1, 0.9, 0.3, 0.05)
 
-    # モデル保存のための変数
     model_filename = "trained_model.pkl"
 
-    # モデル評価のための変数
     eval_metric = st.selectbox("評価指標を選択してください", ["R2スコア", "MAPE"])
 
     def evaluate_model(model, X_train, X_test, y_train, y_test, eval_metric):
@@ -229,16 +218,15 @@ if uploaded_files:
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
             fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
+            fig.update_layout(xaxis_title="インデックス", yaxis_title=ob)
             st.plotly_chart(fig)
 
-            # モデルを保存
             joblib.dump(lr, model_filename)
             st.success(f"モデルが{model_filename}として保存されました")
             model_download_link = download_link(open(model_filename, "rb").read(), model_filename, '保存したモデルをダウンロード')
             st.markdown(model_download_link, unsafe_allow_html=True)
 
-            # 予測結果を追加してCSVで保存
-            start_index = X_train.shape[0]  # テストデータのインデックスの開始位置
+            start_index = X_train.shape[0]
             df_result = add_prediction_to_dataframe(df, y_pred, start_index, ob)
             tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
             st.markdown(tmp_download_link, unsafe_allow_html=True)
@@ -264,16 +252,15 @@ if uploaded_files:
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
             fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
+            fig.update_layout(xaxis_title="インデックス", yaxis_title=ob)
             st.plotly_chart(fig)
 
-            # モデルを保存
             joblib.dump(lr, model_filename)
             st.success(f"モデルが{model_filename}として保存されました")
             model_download_link = download_link(open(model_filename, "rb").read(), model_filename, '保存したモデルをダウンロード')
             st.markdown(model_download_link, unsafe_allow_html=True)
 
-            # 予測結果を追加してCSVで保存
-            start_index = X_train.shape[0]  # テストデータのインデックスの開始位置
+            start_index = X_train.shape[0]
             df_result = add_prediction_to_dataframe(df, y_pred, start_index, ob)
             tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
             st.markdown(tmp_download_link, unsafe_allow_html=True)
@@ -299,16 +286,15 @@ if uploaded_files:
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
             fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
+            fig.update_layout(xaxis_title="インデックス", yaxis_title=ob)
             st.plotly_chart(fig)
 
-            # モデルを保存
             joblib.dump(lgbm, model_filename)
             st.success(f"モデルが{model_filename}として保存されました")
             model_download_link = download_link(open(model_filename, "rb").read(), model_filename, '保存したモデルをダウンロード')
             st.markdown(model_download_link, unsafe_allow_html=True)
 
-            # 予測結果を追加してCSVで保存
-            start_index = X_train.shape[0]  # テストデータのインデックスの開始位置
+            start_index = X_train.shape[0]
             df_result = add_prediction_to_dataframe(df, y_pred, start_index, ob)
             tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
             st.markdown(tmp_download_link, unsafe_allow_html=True)
@@ -334,21 +320,19 @@ if uploaded_files:
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
             fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
+            fig.update_layout(xaxis_title="インデックス", yaxis_title=ob)
             st.plotly_chart(fig)
 
-            # モデルを保存
             joblib.dump(cb, model_filename)
             st.success(f"モデルが{model_filename}として保存されました")
             model_download_link = download_link(open(model_filename, "rb").read(), model_filename, '保存したモデルをダウンロード')
             st.markdown(model_download_link, unsafe_allow_html=True)
 
-            # 予測結果を追加してCSVで保存
-            start_index = X_train.shape[0]  # テストデータのインデックスの開始位置
+            start_index = X_train.shape[0]
             df_result = add_prediction_to_dataframe(df, y_pred, start_index, ob)
             tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
             st.markdown(tmp_download_link, unsafe_allow_html=True)
 
-# モデルをロードして予測を行う
 st.sidebar.markdown("### 保存されたモデルをアップロードして予測を行う")
 uploaded_model = st.sidebar.file_uploader("モデルファイルを選択してください", type=["pkl"])
 if uploaded_model and st.sidebar.button("モデルをロードして予測を行う"):
@@ -371,9 +355,9 @@ if uploaded_model and st.sidebar.button("モデルをロードして予測を行
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=list(range(len(df_ob))), y=df_ob, mode='lines', name='実際の値', line=dict(color='blue')))
         fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
+        fig.update_layout(xaxis_title="インデックス", yaxis_title=ob)
         st.plotly_chart(fig)
 
-        # 予測結果を追加してCSVで保存
         df_result = add_prediction_to_dataframe(df, y_pred, 0, ob)
         tmp_download_link = download_link(df_result, 'ロードしたモデルの予測結果.csv', '予測結果をダウンロード')
         st.markdown(tmp_download_link, unsafe_allow_html=True)
