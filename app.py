@@ -12,7 +12,7 @@ import lightgbm as lgb
 from catboost import CatBoostRegressor, CatBoostClassifier
 from dotenv import load_dotenv
 import base64
-import joblib  # 追加
+import joblib
 
 load_dotenv()
 st.set_page_config(
@@ -92,9 +92,11 @@ def add_prediction_to_dataframe(df, predictions, start_index, ob):
 def download_link(object_to_download, download_filename, download_link_text):
     if isinstance(object_to_download, pd.DataFrame):
         object_to_download = object_to_download.to_csv(index=False)
+    elif isinstance(object_to_download, bytes):
+        b64 = base64.b64encode(object_to_download).decode()
+        return f'<a href="data:application/octet-stream;base64,{b64}" download="{download_filename}">{download_link_text}</a>'
 
     b64 = base64.b64encode(object_to_download.encode()).decode()
-
     return f'<a href="data:file/txt;base64,{b64}" download="{download_filename}">{download_link_text}</a>'
 
 # ファイルがアップロードされたら以下が実行される
@@ -198,6 +200,8 @@ if uploaded_files:
             # モデルを保存
             joblib.dump(lr, model_filename)
             st.success(f"モデルが{model_filename}として保存されました")
+            model_download_link = download_link(open(model_filename, "rb").read(), model_filename, '保存したモデルをダウンロード')
+            st.markdown(model_download_link, unsafe_allow_html=True)
 
             # 予測結果を追加してCSVで保存
             start_index = X_train.shape[0]  # テストデータのインデックスの開始位置
@@ -224,6 +228,8 @@ if uploaded_files:
             # モデルを保存
             joblib.dump(lr, model_filename)
             st.success(f"モデルが{model_filename}として保存されました")
+            model_download_link = download_link(open(model_filename, "rb").read(), model_filename, '保存したモデルをダウンロード')
+            st.markdown(model_download_link, unsafe_allow_html=True)
 
             # 予測結果を追加してCSVで保存
             start_index = X_train.shape[0]  # テストデータのインデックスの開始位置
@@ -250,6 +256,8 @@ if uploaded_files:
             # モデルを保存
             joblib.dump(lgbm, model_filename)
             st.success(f"モデルが{model_filename}として保存されました")
+            model_download_link = download_link(open(model_filename, "rb").read(), model_filename, '保存したモデルをダウンロード')
+            st.markdown(model_download_link, unsafe_allow_html=True)
 
             # 予測結果を追加してCSVで保存
             start_index = X_train.shape[0]  # テストデータのインデックスの開始位置
@@ -276,6 +284,8 @@ if uploaded_files:
             # モデルを保存
             joblib.dump(cb, model_filename)
             st.success(f"モデルが{model_filename}として保存されました")
+            model_download_link = download_link(open(model_filename, "rb").read(), model_filename, '保存したモデルをダウンロード')
+            st.markdown(model_download_link, unsafe_allow_html=True)
 
             # 予測結果を追加してCSVで保存
             start_index = X_train.shape[0]  # テストデータのインデックスの開始位置
@@ -284,10 +294,11 @@ if uploaded_files:
             st.markdown(tmp_download_link, unsafe_allow_html=True)
 
 # モデルをロードして予測を行う
-st.sidebar.markdown("### 保存されたモデルをロードして予測を行う")
-if st.sidebar.button("モデルをロードして予測を行う"):
+st.sidebar.markdown("### 保存されたモデルをアップロードして予測を行う")
+uploaded_model = st.sidebar.file_uploader("モデルファイルを選択してください", type=["pkl"])
+if uploaded_model and st.sidebar.button("モデルをロードして予測を行う"):
     try:
-        model = joblib.load(model_filename)
+        model = joblib.load(uploaded_model)
         df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
         y_pred = model.predict(df_ex)
         
