@@ -218,7 +218,6 @@ if uploaded_files:
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
             fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
-            fig.update_layout(xaxis_title="インデックス", yaxis_title=ob)
             st.plotly_chart(fig)
 
             joblib.dump(lr, model_filename)
@@ -252,7 +251,6 @@ if uploaded_files:
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
             fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
-            fig.update_layout(xaxis_title="インデックス", yaxis_title=ob)
             st.plotly_chart(fig)
 
             joblib.dump(lr, model_filename)
@@ -286,7 +284,6 @@ if uploaded_files:
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
             fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
-            fig.update_layout(xaxis_title="インデックス", yaxis_title=ob)
             st.plotly_chart(fig)
 
             joblib.dump(lgbm, model_filename)
@@ -320,7 +317,6 @@ if uploaded_files:
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
             fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
-            fig.update_layout(xaxis_title="インデックス", yaxis_title=ob)
             st.plotly_chart(fig)
 
             joblib.dump(cb, model_filename)
@@ -355,7 +351,6 @@ if uploaded_model and st.sidebar.button("モデルをロードして予測を行
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=list(range(len(df_ob))), y=df_ob, mode='lines', name='実際の値', line=dict(color='blue')))
         fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
-        fig.update_layout(xaxis_title="インデックス", yaxis_title=ob)
         st.plotly_chart(fig)
 
         df_result = add_prediction_to_dataframe(df, y_pred, 0, ob)
