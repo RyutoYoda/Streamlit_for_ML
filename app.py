@@ -5,9 +5,10 @@ import matplotlib.pyplot as plt
 import japanize_matplotlib
 import seaborn as sns
 import plotly.graph_objects as go
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+from sklearn.metrics import r2_score, mean_absolute_percentage_error
 import lightgbm as lgb
 from catboost import CatBoostRegressor, CatBoostClassifier
 from dotenv import load_dotenv
@@ -181,17 +182,37 @@ if uploaded_files:
     # モデル保存のための変数
     model_filename = "trained_model.pkl"
 
+    # モデル評価のための変数
+    eval_metric = st.selectbox("評価指標を選択してください", ["R2スコア", "MAPE"])
+    cv_option = st.selectbox("評価方法を選択してください", ["ホールドアウト法", "交差検証法"])
+
+    def evaluate_model(model, X, y, cv_option, eval_metric):
+        if cv_option == "交差検証法":
+            scores = cross_val_score(model, X, y, cv=5, scoring='r2' if eval_metric == "R2スコア" else 'neg_mean_absolute_percentage_error')
+            if eval_metric == "R2スコア":
+                return scores.mean(), scores
+            else:
+                return -scores.mean(), -scores
+        else:
+            if eval_metric == "R2スコア":
+                return model.score(X, y), None
+            else:
+                y_pred = model.predict(X)
+                return mean_absolute_percentage_error(y, y_pred), None
+
     if ml_menu == "重回帰分析":
         if st.button("実行"):
             lr = LinearRegression()
             df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
             X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
             lr.fit(X_train, y_train)
+            score, cv_scores = evaluate_model(lr, X_test, y_test, cv_option, eval_metric)
+
+            st.write(f"{eval_metric}:", score)
+            if cv_scores is not None:
+                st.write("交差検証のスコア:", cv_scores)
+
             y_pred = lr.predict(X_test)
-
-            st.write("トレーニングスコア:", lr.score(X_train, y_train))
-            st.write("テストスコア:", lr.score(X_test, y_test))
-
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
             fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
@@ -215,11 +236,13 @@ if uploaded_files:
             df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
             X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
             lr.fit(X_train, y_train)
+            score, cv_scores = evaluate_model(lr, X_test, y_test, cv_option, eval_metric)
+
+            st.write(f"{eval_metric}:", score)
+            if cv_scores is not None:
+                st.write("交差検証のスコア:", cv_scores)
+
             y_pred = lr.predict(X_test)
-
-            st.write("トレーニングスコア:", lr.score(X_train, y_train))
-            st.write("テストスコア:", lr.score(X_test, y_test))
-
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
             fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
@@ -243,11 +266,13 @@ if uploaded_files:
             df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
             X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
             lgbm.fit(X_train, y_train)
+            score, cv_scores = evaluate_model(lgbm, X_test, y_test, cv_option, eval_metric)
+
+            st.write(f"{eval_metric}:", score)
+            if cv_scores is not None:
+                st.write("交差検証のスコア:", cv_scores)
+
             y_pred = lgbm.predict(X_test)
-
-            st.write("トレーニングスコア:", lgbm.score(X_train, y_train))
-            st.write("テストスコア:", lgbm.score(X_test, y_test))
-
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
             fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
@@ -271,11 +296,13 @@ if uploaded_files:
             df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
             X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
             cb.fit(X_train, y_train)
+            score, cv_scores = evaluate_model(cb, X_test, y_test, cv_option, eval_metric)
+
+            st.write(f"{eval_metric}:", score)
+            if cv_scores is not None:
+                st.write("交差検証のスコア:", cv_scores)
+
             y_pred = cb.predict(X_test)
-
-            st.write("トレーニングスコア:", cb.score(X_train, y_train))
-            st.write("テストスコア:", cb.score(X_test, y_test))
-
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
             fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
