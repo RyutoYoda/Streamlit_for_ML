@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import japanize_matplotlib
 import seaborn as sns
 import plotly.graph_objects as go
-from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from sklearn.metrics import r2_score, mean_absolute_percentage_error
@@ -179,18 +179,17 @@ if uploaded_files:
                            ["重回帰分析", "ロジスティック回帰分析", "LightGBM", "Catboost"])
 
     # 時系列データのための期間設定
-    use_time_series = st.sidebar.checkbox("時系列予測を行う")
+    use_time_series = st.checkbox("時系列予測を行う")
     if use_time_series:
-        with st.sidebar.expander("期間設定"):
-            date_column = st.selectbox("日付列を選択してください", [None] + list(df.columns), index=0)
-            if date_column:
-                df[date_column] = pd.to_datetime(df[date_column])
-                min_date, max_date = df[date_column].min(), df[date_column].max()
-                train_period = st.slider("トレーニングデータ期間を選択してください", min_value=min_date, max_value=max_date, value=(min_date, max_date))
-                test_period = st.slider("テストデータ期間を選択してください", min_value=min_date, max_value=max_date, value=(min_date, max_date))
+        date_column = st.selectbox("日付列を選択してください", [None] + list(df.columns), index=0)
+        if date_column:
+            df[date_column] = pd.to_datetime(df[date_column])
+            min_date, max_date = df[date_column].min(), df[date_column].max()
+            train_period = st.slider("トレーニングデータ期間を選択してください", min_value=min_date, max_value=max_date, value=(min_date, max_date))
+            test_period = st.slider("テストデータ期間を選択してください", min_value=min_date, max_value=max_date, value=(min_date, max_date))
 
-                train_mask = (df[date_column] >= train_period[0]) & (df[date_column] <= train_period[1])
-                test_mask = (df[date_column] >= test_period[0]) & (df[date_column] <= test_period[1])
+            train_mask = (df[date_column] >= train_period[0]) & (df[date_column] <= train_period[1])
+            test_mask = (df[date_column] >= test_period[0]) & (df[date_column] <= test_period[1])
     else:
         test_size = st.slider("テストデータの割合を選択してください", 0.1, 0.9, 0.3, 0.05)
 
@@ -199,7 +198,6 @@ if uploaded_files:
 
     # モデル評価のための変数
     eval_metric = st.selectbox("評価指標を選択してください", ["R2スコア", "MAPE"])
-    cv_option = st.selectbox("評価方法を選択してください", ["ホールドアウト法", "交差検証法"])
 
     def evaluate_model(model, X_train, X_test, y_train, y_test, eval_metric):
         train_score = model.score(X_train, y_train)
@@ -357,8 +355,7 @@ if uploaded_model and st.sidebar.button("モデルをロードして予測を行
     try:
         model = joblib.load(uploaded_model)
         df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
-        
-        # スコア計算用に分割
+
         if use_time_series and date_column:
             X_train, X_test = df_ex[train_mask], df_ex[test_mask]
             y_train, y_test = df_ob[train_mask], df_ob[test_mask]
