@@ -216,9 +216,9 @@ if uploaded_files:
 
             y_pred = lr.predict(X_test)
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
-            fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
-            fig.update_layout(xaxis_title=ex, yaxis_title=ob)
+            fig.add_trace(go.Scatter(x=df_ex[x], y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
+            fig.add_trace(go.Scatter(x=df_ex[x], y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
+            fig.update_layout(xaxis_title=x, yaxis_title=ob)
             st.plotly_chart(fig)
 
             joblib.dump(lr, model_filename)
@@ -250,9 +250,9 @@ if uploaded_files:
 
             y_pred = lr.predict(X_test)
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
-            fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
-            fig.update_layout(xaxis_title=ex, yaxis_title=ob)
+            fig.add_trace(go.Scatter(x=df_ex[x], y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
+            fig.add_trace(go.Scatter(x=df_ex[x], y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
+            fig.update_layout(xaxis_title=x, yaxis_title=ob)
             st.plotly_chart(fig)
 
             joblib.dump(lr, model_filename)
@@ -284,9 +284,9 @@ if uploaded_files:
 
             y_pred = lgbm.predict(X_test)
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
-            fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
-            fig.update_layout(xaxis_title=ex, yaxis_title=ob)
+            fig.add_trace(go.Scatter(x=df_ex[x], y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
+            fig.add_trace(go.Scatter(x=df_ex[x], y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
+            fig.update_layout(xaxis_title=x, yaxis_title=ob)
             st.plotly_chart(fig)
 
             joblib.dump(lgbm, model_filename)
@@ -318,9 +318,9 @@ if uploaded_files:
 
             y_pred = cb.predict(X_test)
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
-            fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
-            fig.update_layout(xaxis_title=ex, yaxis_title=ob)
+            fig.add_trace(go.Scatter(x=df_ex[x], y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
+            fig.add_trace(go.Scatter(x=df_ex[x], y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
+            fig.update_layout(xaxis_title=x, yaxis_title=ob)
             st.plotly_chart(fig)
 
             joblib.dump(cb, model_filename)
@@ -335,30 +335,39 @@ if uploaded_files:
 
 st.sidebar.markdown("### 保存されたモデルをアップロードして予測を行う")
 uploaded_model = st.sidebar.file_uploader("モデルファイルを選択してください", type=["pkl"])
-if uploaded_model and st.sidebar.button("モデルをロードして予測を行う"):
-    try:
-        model = joblib.load(uploaded_model)
-        df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
+uploaded_data = st.sidebar.file_uploader("予測用のデータファイルを選択してください", type=['csv', 'xlsx'])
 
-        if use_time_series and date_column:
-            X_train, X_test = df_ex[train_mask], df_ex[test_mask]
-            y_train, y_test = df_ob[train_mask], df_ob[test_mask]
-        else:
-            X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
+if uploaded_model and uploaded_data:
+    if uploaded_data.name.endswith('.csv'):
+        df = pd.read_csv(uploaded_data)
+    elif uploaded_data.name.endswith('.xlsx'):
+        df = pd.read_excel(uploaded_data)
 
-        y_pred = model.predict(df_ex)
+    df_columns = df.columns
+    st.markdown("### モデリング")
+    ex = st.multiselect("説明変数を選択してください（複数選択可）", df_columns, key="modeling_ex")
+    ob = st.selectbox("目的変数を選択してください", df_columns, key="modeling_ob")
+    encoding_type = st.selectbox("エンコーディングタイプを選択してください", ["Label Encoding", "One-Hot Encoding"], key="encoding_type")
+    
+    if st.sidebar.button("モデルをロードして予測を行う"):
+        try:
+            model = joblib.load(uploaded_model)
+            df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
 
-        train_score, test_score = evaluate_model(model, X_train, X_test, y_train, y_test, eval_metric)
-        st.write(f"トレーニングスコア: {train_score}")
-        st.write(f"テストスコア: {test_score}")
+            y_pred = model.predict(df_ex)
+            
+            st.markdown("### 予測結果")
+            x_axis = st.selectbox("X軸に使用する説明変数を選択してください", ex, key="x_axis")
+            
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(x=df[x_axis], y=df_ob, mode='lines', name='実際の値', line=dict(color='blue')))
+            fig.add_trace(go.Scatter(x=df[x_axis], y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
+            fig.update_layout(xaxis_title=x_axis, yaxis_title=ob)
+            st.plotly_chart(fig)
 
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=list(range(len(df_ob))), y=df_ob, mode='lines', name='実際の値', line=dict(color='blue')))
-        fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
-        st.plotly_chart(fig)
-
-        df_result = add_prediction_to_dataframe(df, y_pred, 0, ob)
-        tmp_download_link = download_link(df_result, 'ロードしたモデルの予測結果.csv', '予測結果をダウンロード')
-        st.markdown(tmp_download_link, unsafe_allow_html=True)
-    except Exception as e:
-        st.error(f"モデルのロードに失敗しました: {e}")
+            df_result = df.copy()
+            df_result[f'{ob}_予測'] = y_pred
+            tmp_download_link = download_link(df_result, 'ロードしたモデルの予測結果.csv', '予測結果をダウンロード')
+            st.markdown(tmp_download_link, unsafe_allow_html=True)
+        except Exception as e:
+            st.error(f"モデルのロードに失敗しました: {e}")
