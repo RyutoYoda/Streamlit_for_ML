@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-from sklearn.metrics import r2_score, mean_absolute_percentage_error
+from sklearn.metrics import r2_score, mean_absolute_percentage_error, mean_squared_error
 import lightgbm as lgb
 from catboost import CatBoostRegressor, CatBoostClassifier
 from dotenv import load_dotenv
@@ -170,31 +170,21 @@ if uploaded_files:
     ml_menu = st.selectbox("実施する機械学習のタイプを選択してください",
                            ["重回帰分析", "ロジスティック回帰分析", "LightGBM", "Catboost"])
 
-    use_time_series = st.checkbox("時系列予測を行う")
-    if use_time_series:
-        date_column = st.selectbox("日付列を選択してください", [None] + list(df.columns), index=0)
-        if date_column:
-            df[date_column] = pd.to_datetime(df[date_column])
-            min_date, max_date = df[date_column].min(), df[date_column].max()
-            train_period = st.slider("トレーニングデータ期間を選択してください", min_value=min_date, max_value=max_date, value=(min_date, max_date))
-            test_period = st.slider("テストデータ期間を選択してください", min_value=min_date, max_value=max_date, value=(min_date, max_date))
-
-            train_mask = (df[date_column] >= train_period[0]) & (df[date_column] <= train_period[1])
-            test_mask = (df[date_column] >= test_period[0]) & (df[date_column] <= test_period[1])
-    else:
-        test_size = st.slider("テストデータの割合を選択してください", 0.1, 0.9, 0.3, 0.05)
+    test_size = st.slider("テストデータの割合を選択してください", 0.1, 0.9, 0.3, 0.05)
 
     model_filename = "trained_model.pkl"
 
-    eval_metric = st.selectbox("評価指標を選択してください", ["R2スコア", "MAPE"])
+    eval_metric = st.selectbox("評価指標を選択してください", ["R2スコア", "MAPE", "MSE"])
 
     def evaluate_model(model, X_train, X_test, y_train, y_test, eval_metric):
         train_score = model.score(X_train, y_train)
+        y_pred = model.predict(X_test)
         if eval_metric == "R2スコア":
-            test_score = model.score(X_test, y_test)
-        else:
-            y_pred = model.predict(X_test)
+            test_score = r2_score(y_test, y_pred)
+        elif eval_metric == "MAPE":
             test_score = mean_absolute_percentage_error(y_test, y_pred)
+        elif eval_metric == "MSE":
+            test_score = mean_squared_error(y_test, y_pred)
         return train_score, test_score
 
     if ml_menu == "重回帰分析":
@@ -202,11 +192,7 @@ if uploaded_files:
             lr = LinearRegression()
             df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
 
-            if use_time_series and date_column:
-                X_train, X_test = df_ex[train_mask], df_ex[test_mask]
-                y_train, y_test = df_ob[train_mask], df_ob[test_mask]
-            else:
-                X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
+            X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
 
             lr.fit(X_train, y_train)
             train_score, test_score = evaluate_model(lr, X_train, X_test, y_train, y_test, eval_metric)
@@ -236,11 +222,7 @@ if uploaded_files:
             lr = LogisticRegression()
             df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
 
-            if use_time_series and date_column:
-                X_train, X_test = df_ex[train_mask], df_ex[test_mask]
-                y_train, y_test = df_ob[train_mask], df_ob[test_mask]
-            else:
-                X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
+            X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
 
             lr.fit(X_train, y_train)
             train_score, test_score = evaluate_model(lr, X_train, X_test, y_train, y_test, eval_metric)
@@ -270,11 +252,7 @@ if uploaded_files:
             lgbm = lgb.LGBMRegressor()
             df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
 
-            if use_time_series and date_column:
-                X_train, X_test = df_ex[train_mask], df_ex[test_mask]
-                y_train, y_test = df_ob[train_mask], df_ob[test_mask]
-            else:
-                X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
+            X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
 
             lgbm.fit(X_train, y_train)
             train_score, test_score = evaluate_model(lgbm, X_train, X_test, y_train, y_test, eval_metric)
@@ -304,11 +282,7 @@ if uploaded_files:
             cb = CatBoostRegressor(verbose=0)
             df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
 
-            if use_time_series and date_column:
-                X_train, X_test = df_ex[train_mask], df_ex[test_mask]
-                y_train, y_test = df_ob[train_mask], df_ob[test_mask]
-            else:
-                X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
+            X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
 
             cb.fit(X_train, y_train)
             train_score, test_score = evaluate_model(cb, X_train, X_test, y_train, y_test, eval_metric)
