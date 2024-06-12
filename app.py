@@ -202,15 +202,9 @@ if uploaded_files:
 
             x_axis = st.selectbox("予測結果のグラフのX軸に使用する説明変数を選択してください", ex, key="x_axis_prediction")
 
-            # ソートしてからプロット
-            sorted_indices = np.argsort(X_test[:, ex.index(x_axis)])
-            X_test_sorted = X_test[sorted_indices]
-            y_test_sorted = y_test[sorted_indices]
-            y_pred_sorted = y_pred[sorted_indices]
-
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=X_test_sorted[:, ex.index(x_axis)], y=y_test_sorted, mode='lines', name='実際の値', line=dict(color='blue')))
-            fig.add_trace(go.Scatter(x=X_test_sorted[:, ex.index(x_axis)], y=y_pred_sorted, mode='lines', name='予測値', line=dict(color='red')))
+            fig.add_trace(go.Scatter(x=X_test[:, ex.index(x_axis)], y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
+            fig.add_trace(go.Scatter(x=X_test[:, ex.index(x_axis)], y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
             fig.update_layout(xaxis_title=x_axis, yaxis_title=ob)
             st.plotly_chart(fig)
 
@@ -239,15 +233,9 @@ if uploaded_files:
 
             x_axis = st.selectbox("予測結果のグラフのX軸に使用する説明変数を選択してください", ex, key="x_axis_prediction")
 
-            # ソートしてからプロット
-            sorted_indices = np.argsort(X_test[:, ex.index(x_axis)])
-            X_test_sorted = X_test[sorted_indices]
-            y_test_sorted = y_test[sorted_indices]
-            y_pred_sorted = y_pred[sorted_indices]
-
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=X_test_sorted[:, ex.index(x_axis)], y=y_test_sorted, mode='lines', name='実際の値', line=dict(color='blue')))
-            fig.add_trace(go.Scatter(x=X_test_sorted[:, ex.index(x_axis)], y=y_pred_sorted, mode='lines', name='予測値', line=dict(color='red')))
+            fig.add_trace(go.Scatter(x=X_test[:, ex.index(x_axis)], y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
+            fig.add_trace(go.Scatter(x=X_test[:, ex.index(x_axis)], y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
             fig.update_layout(xaxis_title=x_axis, yaxis_title=ob)
             st.plotly_chart(fig)
 
@@ -276,15 +264,9 @@ if uploaded_files:
 
             x_axis = st.selectbox("予測結果のグラフのX軸に使用する説明変数を選択してください", ex, key="x_axis_prediction")
 
-            # ソートしてからプロット
-            sorted_indices = np.argsort(X_test[:, ex.index(x_axis)])
-            X_test_sorted = X_test[sorted_indices]
-            y_test_sorted = y_test[sorted_indices]
-            y_pred_sorted = y_pred[sorted_indices]
-
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=X_test_sorted[:, ex.index(x_axis)], y=y_test_sorted, mode='lines', name='実際の値', line=dict(color='blue')))
-            fig.add_trace(go.Scatter(x=X_test_sorted[:, ex.index(x_axis)], y=y_pred_sorted, mode='lines', name='予測値', line=dict(color='red')))
+            fig.add_trace(go.Scatter(x=X_test[:, ex.index(x_axis)], y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
+            fig.add_trace(go.Scatter(x=X_test[:, ex.index(x_axis)], y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
             fig.update_layout(xaxis_title=x_axis, yaxis_title=ob)
             st.plotly_chart(fig)
 
@@ -313,15 +295,9 @@ if uploaded_files:
 
             x_axis = st.selectbox("予測結果のグラフのX軸に使用する説明変数を選択してください", ex, key="x_axis_prediction")
 
-            # ソートしてからプロット
-            sorted_indices = np.argsort(X_test[:, ex.index(x_axis)])
-            X_test_sorted = X_test[sorted_indices]
-            y_test_sorted = y_test[sorted_indices]
-            y_pred_sorted = y_pred[sorted_indices]
-
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=X_test_sorted[:, ex.index(x_axis)], y=y_test_sorted, mode='lines', name='実際の値', line=dict(color='blue')))
-            fig.add_trace(go.Scatter(x=X_test_sorted[:, ex.index(x_axis)], y=y_pred_sorted, mode='lines', name='予測値', line=dict(color='red')))
+            fig.add_trace(go.Scatter(x=X_test[:, ex.index(x_axis)], y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
+            fig.add_trace(go.Scatter(x=X_test[:, ex.index(x_axis)], y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
             fig.update_layout(xaxis_title=x_axis, yaxis_title=ob)
             st.plotly_chart(fig)
 
@@ -361,15 +337,9 @@ if uploaded_model and uploaded_data:
             st.markdown("### 予測結果")
             x_axis = st.selectbox("予測結果のグラフのX軸に使用する説明変数を選択してください", ex, key="x_axis_prediction")
 
-            # ソートしてからプロット
-            sorted_indices = np.argsort(df_ex[x_axis].values)
-            df_ex_sorted = df_ex.iloc[sorted_indices]
-            df_ob_sorted = df_ob[sorted_indices]
-            y_pred_sorted = y_pred[sorted_indices]
-            
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=df_ex_sorted[x_axis], y=df_ob_sorted, mode='lines', name='実際の値', line=dict(color='blue')))
-            fig.add_trace(go.Scatter(x=df_ex_sorted[x_axis], y=y_pred_sorted, mode='lines', name='予測値', line=dict(color='red')))
+            fig.add_trace(go.Scatter(x=df_ex[x_axis], y=df_ob, mode='lines', name='実際の値', line=dict(color='blue')))
+            fig.add_trace(go.Scatter(x=df_ex[x_axis], y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
             fig.update_layout(xaxis_title=x_axis, yaxis_title=ob)
             st.plotly_chart(fig)
 
