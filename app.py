@@ -144,8 +144,7 @@ if uploaded_files:
             marker=dict(color=x_color)
         )])
         fig.update
-
-layout(xaxis_title=x, yaxis_title=y, xaxis=dict(color=x_color), yaxis=dict(color=y_color))
+        layout(xaxis_title=x, yaxis_title=y, xaxis=dict(color=x_color), yaxis=dict(color=y_color))
         st.plotly_chart(fig)
 
     st.markdown("### 散布図と相関係数")
