@@ -185,7 +185,7 @@ if uploaded_files:
             test_score = mean_absolute_percentage_error(y_test, y_pred)
         elif eval_metric == "MSE":
             test_score = mean_squared_error(y_test, y_pred)
-        return train_score, test_score
+        return train_score, test_score, y_pred
 
     if ml_menu == "重回帰分析":
         if st.button("実行"):
@@ -195,16 +195,15 @@ if uploaded_files:
             X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
 
             lr.fit(X_train, y_train)
-            train_score, test_score = evaluate_model(lr, X_train, X_test, y_train, y_test, eval_metric)
+            train_score, test_score, y_pred = evaluate_model(lr, X_train, X_test, y_train, y_test, eval_metric)
 
             st.write(f"トレーニングスコア: {train_score}")
             st.write(f"テストスコア: {test_score}")
 
-            y_pred = lr.predict(X_test)
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=df_ex[x], y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
-            fig.add_trace(go.Scatter(x=df_ex[x], y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
-            fig.update_layout(xaxis_title=x, yaxis_title=ob)
+            fig.add_trace(go.Scatter(x=X_test[:, 0], y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
+            fig.add_trace(go.Scatter(x=X_test[:, 0], y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
+            fig.update_layout(xaxis_title=ex[0], yaxis_title=ob)
             st.plotly_chart(fig)
 
             joblib.dump(lr, model_filename)
@@ -225,16 +224,15 @@ if uploaded_files:
             X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
 
             lr.fit(X_train, y_train)
-            train_score, test_score = evaluate_model(lr, X_train, X_test, y_train, y_test, eval_metric)
+            train_score, test_score, y_pred = evaluate_model(lr, X_train, X_test, y_train, y_test, eval_metric)
 
             st.write(f"トレーニングスコア: {train_score}")
             st.write(f"テストスコア: {test_score}")
 
-            y_pred = lr.predict(X_test)
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=df_ex[x], y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
-            fig.add_trace(go.Scatter(x=df_ex[x], y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
-            fig.update_layout(xaxis_title=x, yaxis_title=ob)
+            fig.add_trace(go.Scatter(x=X_test[:, 0], y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
+            fig.add_trace(go.Scatter(x=X_test[:, 0], y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
+            fig.update_layout(xaxis_title=ex[0], yaxis_title=ob)
             st.plotly_chart(fig)
 
             joblib.dump(lr, model_filename)
@@ -255,16 +253,15 @@ if uploaded_files:
             X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
 
             lgbm.fit(X_train, y_train)
-            train_score, test_score = evaluate_model(lgbm, X_train, X_test, y_train, y_test, eval_metric)
+            train_score, test_score, y_pred = evaluate_model(lgbm, X_train, X_test, y_train, y_test, eval_metric)
 
             st.write(f"トレーニングスコア: {train_score}")
             st.write(f"テストスコア: {test_score}")
 
-            y_pred = lgbm.predict(X_test)
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=df_ex[x], y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
-            fig.add_trace(go.Scatter(x=df_ex[x], y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
-            fig.update_layout(xaxis_title=x, yaxis_title=ob)
+            fig.add_trace(go.Scatter(x=X_test[:, 0], y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
+            fig.add_trace(go.Scatter(x=X_test[:, 0], y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
+            fig.update_layout(xaxis_title=ex[0], yaxis_title=ob)
             st.plotly_chart(fig)
 
             joblib.dump(lgbm, model_filename)
@@ -285,16 +282,15 @@ if uploaded_files:
             X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
 
             cb.fit(X_train, y_train)
-            train_score, test_score = evaluate_model(cb, X_train, X_test, y_train, y_test, eval_metric)
+            train_score, test_score, y_pred = evaluate_model(cb, X_train, X_test, y_train, y_test, eval_metric)
 
             st.write(f"トレーニングスコア: {train_score}")
             st.write(f"テストスコア: {test_score}")
 
-            y_pred = cb.predict(X_test)
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=df_ex[x], y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
-            fig.add_trace(go.Scatter(x=df_ex[x], y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
-            fig.update_layout(xaxis_title=x, yaxis_title=ob)
+            fig.add_trace(go.Scatter(x=X_test[:, 0], y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
+            fig.add_trace(go.Scatter(x=X_test[:, 0], y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
+            fig.update_layout(xaxis_title=ex[0], yaxis_title=ob)
             st.plotly_chart(fig)
 
             joblib.dump(cb, model_filename)
