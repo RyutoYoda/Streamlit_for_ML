@@ -231,10 +231,11 @@ if uploaded_files:
             model_download_link = download_link(open(model_filename, "rb").read(), model_filename, '保存したモデルをダウンロード')
             st.markdown(model_download_link, unsafe_allow_html=True)
 
-            start_index = X_train.shape[0]
-            df_result = add_prediction_to_dataframe(df, y_pred, start_index, ob)
-            tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
-            st.markdown(tmp_download_link, unsafe_allow_html=True)
+            if validation_method == "ホールドアウト":
+                start_index = X_train.shape[0]
+                df_result = add_prediction_to_dataframe(df, y_pred, start_index, ob)
+                tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
+                st.markdown(tmp_download_link, unsafe_allow_html=True)
 
     elif ml_menu == "ロジスティック回帰分析":
         if st.button("実行"):
@@ -276,10 +277,11 @@ if uploaded_files:
             model_download_link = download_link(open(model_filename, "rb").read(), model_filename, '保存したモデルをダウンロード')
             st.markdown(model_download_link, unsafe_allow_html=True)
 
-            start_index = X_train.shape[0]
-            df_result = add_prediction_to_dataframe(df, y_pred, start_index, ob)
-            tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
-            st.markdown(tmp_download_link, unsafe_allow_html=True)
+            if validation_method == "ホールドアウト":
+                start_index = X_train.shape[0]
+                df_result = add_prediction_to_dataframe(df, y_pred, start_index, ob)
+                tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
+                st.markdown(tmp_download_link, unsafe_allow_html=True)
 
     elif ml_menu == "LightGBM":
         if st.button("実行"):
@@ -321,10 +323,11 @@ if uploaded_files:
             model_download_link = download_link(open(model_filename, "rb").read(), model_filename, '保存したモデルをダウンロード')
             st.markdown(model_download_link, unsafe_allow_html=True)
 
-            start_index = X_train.shape[0]
-            df_result = add_prediction_to_dataframe(df, y_pred, start_index, ob)
-            tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
-            st.markdown(tmp_download_link, unsafe_allow_html=True)
+            if validation_method == "ホールドアウト":
+                start_index = X_train.shape[0]
+                df_result = add_prediction_to_dataframe(df, y_pred, start_index, ob)
+                tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
+                st.markdown(tmp_download_link, unsafe_allow_html=True)
 
     elif ml_menu == "Catboost":
         if st.button("実行"):
@@ -366,10 +369,11 @@ if uploaded_files:
             model_download_link = download_link(open(model_filename, "rb").read(), model_filename, '保存したモデルをダウンロード')
             st.markdown(model_download_link, unsafe_allow_html=True)
 
-            start_index = X_train.shape[0]
-            df_result = add_prediction_to_dataframe(df, y_pred, start_index, ob)
-            tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
-            st.markdown(tmp_download_link, unsafe_allow_html=True)
+            if validation_method == "ホールドアウト":
+                start_index = X_train.shape[0]
+                df_result = add_prediction_to_dataframe(df, y_pred, start_index, ob)
+                tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
+                st.markdown(tmp_download_link, unsafe_allow_html=True)
 
 st.sidebar.markdown("### 保存されたモデルをアップロードして予測を行う")
 uploaded_model = st.sidebar.file_uploader("モデルファイルを選択してください", type=["pkl"])
