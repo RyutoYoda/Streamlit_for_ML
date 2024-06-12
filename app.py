@@ -390,7 +390,7 @@ if uploaded_model and uploaded_data:
     ob = st.selectbox("目的変数を選択してください", df_columns, key="modeling_ob")
     encoding_type = st.selectbox("エンコーディングタイプを選択してください", ["Label Encoding", "One-Hot Encoding"], key="encoding_type")
     
-    if st.sidebar.button("モデルをロードして予測を行う"):
+    if st.button("実行"):
         try:
             model = joblib.load(uploaded_model)
             df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
