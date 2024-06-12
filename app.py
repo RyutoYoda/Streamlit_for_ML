@@ -203,6 +203,13 @@ if uploaded_files:
                 st.write(f"トレーニングスコア: {train_score}")
                 st.write(f"テストスコア: {test_score}")
 
+                y_pred = lr.predict(X_test)
+                fig = go.Figure()
+                fig.add_trace(go.Scatter(x=X_test[:, 0], y=y_test, mode='markers', name='実際の値', line=dict(color='blue')))
+                fig.add_trace(go.Scatter(x=X_test[:, 0], y=y_pred, mode='markers', name='予測値', line=dict(color='red')))
+                fig.update_layout(xaxis_title="説明変数", yaxis_title=ob)
+                st.plotly_chart(fig)
+
             elif validation_method == "交差検証":
                 scores = cross_val_score(lr, df_ex.values, df_ob.values, cv=5, scoring='r2')
                 st.write(f"交差検証スコア (R2): {scores.mean()}")
@@ -218,13 +225,6 @@ if uploaded_files:
                     train_score, test_score = evaluate_model(lr, X_train, X_test, y_train, y_test, eval_metric)
                     scores.append(test_score)
                 st.write(f"k-foldスコア (平均): {np.mean(scores)}")
-
-            y_pred = lr.predict(X_test)
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(x=df_ex[x], y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
-            fig.add_trace(go.Scatter(x=df_ex[x], y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
-            fig.update_layout(xaxis_title=x, yaxis_title=ob)
-            st.plotly_chart(fig)
 
             joblib.dump(lr, model_filename)
             st.success(f"モデルが{model_filename}として保存されました")
@@ -248,6 +248,13 @@ if uploaded_files:
                 st.write(f"トレーニングスコア: {train_score}")
                 st.write(f"テストスコア: {test_score}")
 
+                y_pred = lr.predict(X_test)
+                fig = go.Figure()
+                fig.add_trace(go.Scatter(x=X_test[:, 0], y=y_test, mode='markers', name='実際の値', line=dict(color='blue')))
+                fig.add_trace(go.Scatter(x=X_test[:, 0], y=y_pred, mode='markers', name='予測値', line=dict(color='red')))
+                fig.update_layout(xaxis_title="説明変数", yaxis_title=ob)
+                st.plotly_chart(fig)
+
             elif validation_method == "交差検証":
                 scores = cross_val_score(lr, df_ex.values, df_ob.values, cv=5, scoring='accuracy')
                 st.write(f"交差検証スコア (Accuracy): {scores.mean()}")
@@ -263,13 +270,6 @@ if uploaded_files:
                     train_score, test_score = evaluate_model(lr, X_train, X_test, y_train, y_test, eval_metric)
                     scores.append(test_score)
                 st.write(f"k-foldスコア (平均): {np.mean(scores)}")
-
-            y_pred = lr.predict(X_test)
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(x=df_ex[x], y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
-            fig.add_trace(go.Scatter(x=df_ex[x], y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
-            fig.update_layout(xaxis_title=x, yaxis_title=ob)
-            st.plotly_chart(fig)
 
             joblib.dump(lr, model_filename)
             st.success(f"モデルが{model_filename}として保存されました")
@@ -293,6 +293,13 @@ if uploaded_files:
                 st.write(f"トレーニングスコア: {train_score}")
                 st.write(f"テストスコア: {test_score}")
 
+                y_pred = lgbm.predict(X_test)
+                fig = go.Figure()
+                fig.add_trace(go.Scatter(x=X_test[:, 0], y=y_test, mode='markers', name='実際の値', line=dict(color='blue')))
+                fig.add_trace(go.Scatter(x=X_test[:, 0], y=y_pred, mode='markers', name='予測値', line=dict(color='red')))
+                fig.update_layout(xaxis_title="説明変数", yaxis_title=ob)
+                st.plotly_chart(fig)
+
             elif validation_method == "交差検証":
                 scores = cross_val_score(lgbm, df_ex.values, df_ob.values, cv=5, scoring='r2')
                 st.write(f"交差検証スコア (R2): {scores.mean()}")
@@ -308,13 +315,6 @@ if uploaded_files:
                     train_score, test_score = evaluate_model(lgbm, X_train, X_test, y_train, y_test, eval_metric)
                     scores.append(test_score)
                 st.write(f"k-foldスコア (平均): {np.mean(scores)}")
-
-            y_pred = lgbm.predict(X_test)
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(x=df_ex[x], y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
-            fig.add_trace(go.Scatter(x=df_ex[x], y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
-            fig.update_layout(xaxis_title=x, yaxis_title=ob)
-            st.plotly_chart(fig)
 
             joblib.dump(lgbm, model_filename)
             st.success(f"モデルが{model_filename}として保存されました")
@@ -338,6 +338,13 @@ if uploaded_files:
                 st.write(f"トレーニングスコア: {train_score}")
                 st.write(f"テストスコア: {test_score}")
 
+                y_pred = cb.predict(X_test)
+                fig = go.Figure()
+                fig.add_trace(go.Scatter(x=X_test[:, 0], y=y_test, mode='markers', name='実際の値', line=dict(color='blue')))
+                fig.add_trace(go.Scatter(x=X_test[:, 0], y=y_pred, mode='markers', name='予測値', line=dict(color='red')))
+                fig.update_layout(xaxis_title="説明変数", yaxis_title=ob)
+                st.plotly_chart(fig)
+
             elif validation_method == "交差検証":
                 scores = cross_val_score(cb, df_ex.values, df_ob.values, cv=5, scoring='r2')
                 st.write(f"交差検証スコア (R2): {scores.mean()}")
@@ -353,13 +360,6 @@ if uploaded_files:
                     train_score, test_score = evaluate_model(cb, X_train, X_test, y_train, y_test, eval_metric)
                     scores.append(test_score)
                 st.write(f"k-foldスコア (平均): {np.mean(scores)}")
-
-            y_pred = cb.predict(X_test)
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(x=df_ex[x], y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
-            fig.add_trace(go.Scatter(x=df_ex[x], y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
-            fig.update_layout(xaxis_title=x, yaxis_title=ob)
-            st.plotly_chart(fig)
 
             joblib.dump(cb, model_filename)
             st.success(f"モデルが{model_filename}として保存されました")
@@ -398,8 +398,8 @@ if uploaded_model and uploaded_data:
             x_axis = st.selectbox("X軸に使用する説明変数を選択してください", ex, key="x_axis")
             
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=df[x_axis], y=df_ob, mode='lines', name='実際の値', line=dict(color='blue')))
-            fig.add_trace(go.Scatter(x=df[x_axis], y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
+            fig.add_trace(go.Scatter(x=df[x_axis], y=df_ob, mode='markers', name='実際の値', line=dict(color='blue')))
+            fig.add_trace(go.Scatter(x=df[x_axis], y=y_pred, mode='markers', name='予測値', line=dict(color='red')))
             fig.update_layout(xaxis_title=x_axis, yaxis_title=ob)
             st.plotly_chart(fig)
 
