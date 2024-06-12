@@ -5,10 +5,10 @@ import matplotlib.pyplot as plt
 import japanize_matplotlib
 import seaborn as sns
 import plotly.graph_objects as go
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_score, KFold
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-from sklearn.metrics import r2_score, mean_absolute_percentage_error
+from sklearn.metrics import r2_score, mean_absolute_percentage_error, mean_squared_error
 import lightgbm as lgb
 from catboost import CatBoostRegressor, CatBoostClassifier
 from dotenv import load_dotenv
@@ -170,31 +170,20 @@ if uploaded_files:
     ml_menu = st.selectbox("実施する機械学習のタイプを選択してください",
                            ["重回帰分析", "ロジスティック回帰分析", "LightGBM", "Catboost"])
 
-    use_time_series = st.checkbox("時系列予測を行う")
-    if use_time_series:
-        date_column = st.selectbox("日付列を選択してください", [None] + list(df.columns), index=0)
-        if date_column:
-            df[date_column] = pd.to_datetime(df[date_column])
-            min_date, max_date = df[date_column].min(), df[date_column].max()
-            train_period = st.slider("トレーニングデータ期間を選択してください", min_value=min_date, max_value=max_date, value=(min_date, max_date))
-            test_period = st.slider("テストデータ期間を選択してください", min_value=min_date, max_value=max_date, value=(min_date, max_date))
+    test_size = st.slider("テストデータの割合を選択してください", 0.1, 0.9, 0.3, 0.05)
 
-            train_mask = (df[date_column] >= train_period[0]) & (df[date_column] <= train_period[1])
-            test_mask = (df[date_column] >= test_period[0]) & (df[date_column] <= test_period[1])
-    else:
-        test_size = st.slider("テストデータの割合を選択してください", 0.1, 0.9, 0.3, 0.05)
-
-    model_filename = "trained_model.pkl"
-
-    eval_metric = st.selectbox("評価指標を選択してください", ["R2スコア", "MAPE"])
+    eval_metric = st.selectbox("評価指標を選択してください", ["R2スコア", "MAPE", "MSE"])
 
     def evaluate_model(model, X_train, X_test, y_train, y_test, eval_metric):
         train_score = model.score(X_train, y_train)
         if eval_metric == "R2スコア":
             test_score = model.score(X_test, y_test)
-        else:
+        elif eval_metric == "MAPE":
             y_pred = model.predict(X_test)
             test_score = mean_absolute_percentage_error(y_test, y_pred)
+        elif eval_metric == "MSE":
+            y_pred = model.predict(X_test)
+            test_score = mean_squared_error(y_test, y_pred)
         return train_score, test_score
 
     if ml_menu == "重回帰分析":
@@ -202,11 +191,7 @@ if uploaded_files:
             lr = LinearRegression()
             df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
 
-            if use_time_series and date_column:
-                X_train, X_test = df_ex[train_mask], df_ex[test_mask]
-                y_train, y_test = df_ob[train_mask], df_ob[test_mask]
-            else:
-                X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
+            X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
 
             lr.fit(X_train, y_train)
             train_score, test_score = evaluate_model(lr, X_train, X_test, y_train, y_test, eval_metric)
@@ -236,11 +221,7 @@ if uploaded_files:
             lr = LogisticRegression()
             df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
 
-            if use_time_series and date_column:
-                X_train, X_test = df_ex[train_mask], df_ex[test_mask]
-                y_train, y_test = df_ob[train_mask], df_ob[test_mask]
-            else:
-                X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
+            X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
 
             lr.fit(X_train, y_train)
             train_score, test_score = evaluate_model(lr, X_train, X_test, y_train, y_test, eval_metric)
@@ -270,11 +251,7 @@ if uploaded_files:
             lgbm = lgb.LGBMRegressor()
             df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
 
-            if use_time_series and date_column:
-                X_train, X_test = df_ex[train_mask], df_ex[test_mask]
-                y_train, y_test = df_ob[train_mask], df_ob[test_mask]
-            else:
-                X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
+            X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
 
             lgbm.fit(X_train, y_train)
             train_score, test_score = evaluate_model(lgbm, X_train, X_test, y_train, y_test, eval_metric)
@@ -304,11 +281,7 @@ if uploaded_files:
             cb = CatBoostRegressor(verbose=0)
             df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
 
-            if use_time_series and date_column:
-                X_train, X_test = df_ex[train_mask], df_ex[test_mask]
-                y_train, y_test = df_ob[train_mask], df_ob[test_mask]
-            else:
-                X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
+            X_train, X_test, y_train, y_test = train_test_split(df_ex.values, df_ob.values, test_size=test_size)
 
             cb.fit(X_train, y_train)
             train_score, test_score = evaluate_model(cb, X_train, X_test, y_train, y_test, eval_metric)
@@ -333,41 +306,13 @@ if uploaded_files:
             tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
             st.markdown(tmp_download_link, unsafe_allow_html=True)
 
-st.sidebar.markdown("### 保存されたモデルをアップロードして予測を行う")
-uploaded_model = st.sidebar.file_uploader("モデルファイルを選択してください", type=["pkl"])
-uploaded_data = st.sidebar.file_uploader("予測用のデータファイルを選択してください", type=['csv', 'xlsx'])
+    st.markdown("### クロスバリデーション")
+    cross_validation = st.selectbox("クロスバリデーション法を選択してください", ["K-Fold", "Stratified K-Fold", "Leave-One-Out"])
+    n_splits = st.slider("分割数を選択してください", 2, 10, 5)
 
-if uploaded_model and uploaded_data:
-    if uploaded_data.name.endswith('.csv'):
-        df = pd.read_csv(uploaded_data)
-    elif uploaded_data.name.endswith('.xlsx'):
-        df = pd.read_excel(uploaded_data)
-
-    df_columns = df.columns
-    st.markdown("### モデリング")
-    ex = st.multiselect("説明変数を選択してください（複数選択可）", df_columns, key="modeling_ex")
-    ob = st.selectbox("目的変数を選択してください", df_columns, key="modeling_ob")
-    encoding_type = st.selectbox("エンコーディングタイプを選択してください", ["Label Encoding", "One-Hot Encoding"], key="encoding_type")
-    
-    if st.sidebar.button("モデルをロードして予測を行う"):
-        try:
-            model = joblib.load(uploaded_model)
-            df_ex, df_ob = preprocess_data(df, ex, ob, encoding_type)
-
-            y_pred = model.predict(df_ex)
-            
-            st.markdown("### 予測結果")
-            x_axis = st.selectbox("X軸に使用する説明変数を選択してください", ex, key="x_axis")
-            
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(x=df[x_axis], y=df_ob, mode='lines', name='実際の値', line=dict(color='blue')))
-            fig.add_trace(go.Scatter(x=df[x_axis], y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
-            fig.update_layout(xaxis_title=x_axis, yaxis_title=ob)
-            st.plotly_chart(fig)
-
-            df_result = df.copy()
-            df_result[f'{ob}_予測'] = y_pred
-            tmp_download_link = download_link(df_result, 'ロードしたモデルの予測結果.csv', '予測結果をダウンロード')
-            st.markdown(tmp_download_link, unsafe_allow_html=True)
-        except Exception as e:
-            st.error(f"モデルのロードに失敗しました: {e}")
+    if st.button("クロスバリデーション実行"):
+        if cross_validation == "K-Fold":
+            kf = KFold(n_splits=n_splits, shuffle=True, random_state=1)
+        scores = cross_val_score(lr, df_ex, df_ob, cv=kf, scoring='neg_mean_squared_error')
+        st.write(f"クロスバリデーションスコア: {np.sqrt(-scores)}")
+        st.write(f"平均スコア: {np.mean(np.sqrt(-scores))}")
