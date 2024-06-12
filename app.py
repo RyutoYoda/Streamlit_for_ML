@@ -191,6 +191,13 @@ if uploaded_files:
         
         return train_score, test_score
 
+    def plot_results(y_test, y_pred, ob):
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
+        fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
+        fig.update_layout(xaxis_title="データポイント", yaxis_title=ob)
+        st.plotly_chart(fig)
+
     if ml_menu == "重回帰分析":
         if st.button("実行"):
             lr = LinearRegression()
@@ -204,38 +211,36 @@ if uploaded_files:
                 st.write(f"テストスコア: {test_score}")
 
                 y_pred = lr.predict(X_test)
-                fig = go.Figure()
-                fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
-                fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
-                fig.update_layout(xaxis_title="データポイント", yaxis_title=ob)
-                st.plotly_chart(fig)
+                plot_results(y_test, y_pred, ob)
 
             elif validation_method == "交差検証":
                 scores = cross_val_score(lr, df_ex.values, df_ob.values, cv=5, scoring='r2')
                 st.write(f"交差検証スコア (R2): {scores.mean()}")
 
+                lr.fit(df_ex.values, df_ob.values)
+                y_pred = lr.predict(df_ex.values)
+                plot_results(df_ob, y_pred, ob)
+
             elif validation_method == "k-fold":
                 kf = KFold(n_splits=5)
                 kf.get_n_splits(df_ex)
                 scores = []
+                y_test_all, y_pred_all = [], []
                 for train_index, test_index in kf.split(df_ex):
                     X_train, X_test = df_ex.iloc[train_index], df_ex.iloc[test_index]
                     y_train, y_test = df_ob[train_index], df_ob[test_index]
                     lr.fit(X_train, y_train)
                     train_score, test_score = evaluate_model(lr, X_train, X_test, y_train, y_test, eval_metric)
                     scores.append(test_score)
+                    y_test_all.extend(y_test)
+                    y_pred_all.extend(lr.predict(X_test))
                 st.write(f"k-foldスコア (平均): {np.mean(scores)}")
+                plot_results(y_test_all, y_pred_all, ob)
 
             joblib.dump(lr, model_filename)
             st.success(f"モデルが{model_filename}として保存されました")
             model_download_link = download_link(open(model_filename, "rb").read(), model_filename, '保存したモデルをダウンロード')
             st.markdown(model_download_link, unsafe_allow_html=True)
-
-            if validation_method == "ホールドアウト":
-                start_index = X_train.shape[0]
-                df_result = add_prediction_to_dataframe(df, y_pred, start_index, ob)
-                tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
-                st.markdown(tmp_download_link, unsafe_allow_html=True)
 
     elif ml_menu == "ロジスティック回帰分析":
         if st.button("実行"):
@@ -250,38 +255,36 @@ if uploaded_files:
                 st.write(f"テストスコア: {test_score}")
 
                 y_pred = lr.predict(X_test)
-                fig = go.Figure()
-                fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
-                fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
-                fig.update_layout(xaxis_title="データポイント", yaxis_title=ob)
-                st.plotly_chart(fig)
+                plot_results(y_test, y_pred, ob)
 
             elif validation_method == "交差検証":
                 scores = cross_val_score(lr, df_ex.values, df_ob.values, cv=5, scoring='accuracy')
                 st.write(f"交差検証スコア (Accuracy): {scores.mean()}")
 
+                lr.fit(df_ex.values, df_ob.values)
+                y_pred = lr.predict(df_ex.values)
+                plot_results(df_ob, y_pred, ob)
+
             elif validation_method == "k-fold":
                 kf = KFold(n_splits=5)
                 kf.get_n_splits(df_ex)
                 scores = []
+                y_test_all, y_pred_all = [], []
                 for train_index, test_index in kf.split(df_ex):
                     X_train, X_test = df_ex.iloc[train_index], df_ex.iloc[test_index]
                     y_train, y_test = df_ob[train_index], df_ob[test_index]
                     lr.fit(X_train, y_train)
                     train_score, test_score = evaluate_model(lr, X_train, X_test, y_train, y_test, eval_metric)
                     scores.append(test_score)
+                    y_test_all.extend(y_test)
+                    y_pred_all.extend(lr.predict(X_test))
                 st.write(f"k-foldスコア (平均): {np.mean(scores)}")
+                plot_results(y_test_all, y_pred_all, ob)
 
             joblib.dump(lr, model_filename)
             st.success(f"モデルが{model_filename}として保存されました")
             model_download_link = download_link(open(model_filename, "rb").read(), model_filename, '保存したモデルをダウンロード')
             st.markdown(model_download_link, unsafe_allow_html=True)
-
-            if validation_method == "ホールドアウト":
-                start_index = X_train.shape[0]
-                df_result = add_prediction_to_dataframe(df, y_pred, start_index, ob)
-                tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
-                st.markdown(tmp_download_link, unsafe_allow_html=True)
 
     elif ml_menu == "LightGBM":
         if st.button("実行"):
@@ -296,38 +299,36 @@ if uploaded_files:
                 st.write(f"テストスコア: {test_score}")
 
                 y_pred = lgbm.predict(X_test)
-                fig = go.Figure()
-                fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
-                fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
-                fig.update_layout(xaxis_title="データポイント", yaxis_title=ob)
-                st.plotly_chart(fig)
+                plot_results(y_test, y_pred, ob)
 
             elif validation_method == "交差検証":
                 scores = cross_val_score(lgbm, df_ex.values, df_ob.values, cv=5, scoring='r2')
                 st.write(f"交差検証スコア (R2): {scores.mean()}")
 
+                lgbm.fit(df_ex.values, df_ob.values)
+                y_pred = lgbm.predict(df_ex.values)
+                plot_results(df_ob, y_pred, ob)
+
             elif validation_method == "k-fold":
                 kf = KFold(n_splits=5)
                 kf.get_n_splits(df_ex)
                 scores = []
+                y_test_all, y_pred_all = [], []
                 for train_index, test_index in kf.split(df_ex):
                     X_train, X_test = df_ex.iloc[train_index], df_ex.iloc[test_index]
                     y_train, y_test = df_ob[train_index], df_ob[test_index]
                     lgbm.fit(X_train, y_train)
                     train_score, test_score = evaluate_model(lgbm, X_train, X_test, y_train, y_test, eval_metric)
                     scores.append(test_score)
+                    y_test_all.extend(y_test)
+                    y_pred_all.extend(lgbm.predict(X_test))
                 st.write(f"k-foldスコア (平均): {np.mean(scores)}")
+                plot_results(y_test_all, y_pred_all, ob)
 
             joblib.dump(lgbm, model_filename)
             st.success(f"モデルが{model_filename}として保存されました")
             model_download_link = download_link(open(model_filename, "rb").read(), model_filename, '保存したモデルをダウンロード')
             st.markdown(model_download_link, unsafe_allow_html=True)
-
-            if validation_method == "ホールドアウト":
-                start_index = X_train.shape[0]
-                df_result = add_prediction_to_dataframe(df, y_pred, start_index, ob)
-                tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
-                st.markdown(tmp_download_link, unsafe_allow_html=True)
 
     elif ml_menu == "Catboost":
         if st.button("実行"):
@@ -342,38 +343,36 @@ if uploaded_files:
                 st.write(f"テストスコア: {test_score}")
 
                 y_pred = cb.predict(X_test)
-                fig = go.Figure()
-                fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
-                fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
-                fig.update_layout(xaxis_title="データポイント", yaxis_title=ob)
-                st.plotly_chart(fig)
+                plot_results(y_test, y_pred, ob)
 
             elif validation_method == "交差検証":
                 scores = cross_val_score(cb, df_ex.values, df_ob.values, cv=5, scoring='r2')
                 st.write(f"交差検証スコア (R2): {scores.mean()}")
 
+                cb.fit(df_ex.values, df_ob.values)
+                y_pred = cb.predict(df_ex.values)
+                plot_results(df_ob, y_pred, ob)
+
             elif validation_method == "k-fold":
                 kf = KFold(n_splits=5)
                 kf.get_n_splits(df_ex)
                 scores = []
+                y_test_all, y_pred_all = [], []
                 for train_index, test_index in kf.split(df_ex):
                     X_train, X_test = df_ex.iloc[train_index], df_ex.iloc[test_index]
                     y_train, y_test = df_ob[train_index], df_ob[test_index]
                     cb.fit(X_train, y_train)
                     train_score, test_score = evaluate_model(cb, X_train, X_test, y_train, y_test, eval_metric)
                     scores.append(test_score)
+                    y_test_all.extend(y_test)
+                    y_pred_all.extend(cb.predict(X_test))
                 st.write(f"k-foldスコア (平均): {np.mean(scores)}")
+                plot_results(y_test_all, y_pred_all, ob)
 
             joblib.dump(cb, model_filename)
             st.success(f"モデルが{model_filename}として保存されました")
             model_download_link = download_link(open(model_filename, "rb").read(), model_filename, '保存したモデルをダウンロード')
             st.markdown(model_download_link, unsafe_allow_html=True)
-
-            if validation_method == "ホールドアウト":
-                start_index = X_train.shape[0]
-                df_result = add_prediction_to_dataframe(df, y_pred, start_index, ob)
-                tmp_download_link = download_link(df_result, '予測結果.csv', '予測結果をダウンロード')
-                st.markdown(tmp_download_link, unsafe_allow_html=True)
 
 st.sidebar.markdown("### 保存されたモデルをアップロードして予測を行う")
 uploaded_model = st.sidebar.file_uploader("モデルファイルを選択してください", type=["pkl"])
