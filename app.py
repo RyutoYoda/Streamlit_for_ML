@@ -199,6 +199,12 @@ if uploaded_files:
         fig.update_layout(xaxis_title=x_label, yaxis_title=ob)
         st.plotly_chart(fig)
 
+        fig = go.Figure()
+        fig.add_trace(go.Bar(x=original_x, y=y_test, name='実際の値', marker=dict(color='blue')))
+        fig.add_trace(go.Bar(x=original_x, y=y_pred, name='予測値', marker=dict(color='red')))
+        fig.update_layout(xaxis_title=x_label, yaxis_title=ob, barmode='group')
+        st.plotly_chart(fig)
+
     if ml_menu == "重回帰分析":
         if st.button("実行"):
             lr = LinearRegression()
@@ -373,7 +379,7 @@ if uploaded_files:
             joblib.dump(cb, model_filename)
             st.success(f"モデルが{model_filename}として保存されました")
             model_download_link = download_link(open(model_filename, "rb").read(), model_filename, '保存したモデルをダウンロード')
-            st.markdown(model_download_link, unsafe_allowhtml=True)
+            st.markdown(model_download_link, unsafe_allow_html=True)
 
 st.sidebar.markdown("### 保存されたモデルをアップロードして予測を行う")
 uploaded_model = st.sidebar.file_uploader("モデルファイルを選択してください", type=["pkl"])
@@ -407,9 +413,15 @@ if uploaded_model and uploaded_data:
             fig.update_layout(xaxis_title=x_axis, yaxis_title=ob)
             st.plotly_chart(fig)
 
+            fig = go.Figure()
+            fig.add_trace(go.Bar(x=original_ex[x_axis], y=df_ob, name='実際の値', marker=dict(color='blue')))
+            fig.add_trace(go.Bar(x=original_ex[x_axis], y=y_pred, name='予測値', marker=dict(color='red')))
+            fig.update_layout(xaxis_title=x_axis, yaxis_title=ob, barmode='group')
+            st.plotly_chart(fig)
+
             df_result = df.copy()
             df_result[f'{ob}_予測'] = y_pred
             tmp_download_link = download_link(df_result, 'ロードしたモデルの予測結果.csv', '予測結果をダウンロード')
-            st.markdown(tmp_download_link, unsafe_allowhtml=True)
+            st.markdown(tmp_download_link, unsafe_allow_html=True)
         except Exception as e:
             st.error(f"モデルのロードに失敗しました: {e}")
