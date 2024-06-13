@@ -191,11 +191,11 @@ if uploaded_files:
         
         return train_score, test_score
 
-    def plot_results(y_test, y_pred, ob):
+    def plot_results(y_test, y_pred, ob, x_axis):
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=list(range(len(y_test))), y=y_test, mode='lines', name='実際の値', line=dict(color='blue')))
         fig.add_trace(go.Scatter(x=list(range(len(y_pred))), y=y_pred, mode='lines', name='予測値', line=dict(color='red')))
-        fig.update_layout(xaxis_title="データポイント", yaxis_title=ob)
+        fig.update_layout(xaxis_title=x_axis, yaxis_title=ob)
         st.plotly_chart(fig)
 
     if ml_menu == "重回帰分析":
@@ -211,7 +211,7 @@ if uploaded_files:
                 st.write(f"テストスコア: {test_score}")
 
                 y_pred = lr.predict(X_test)
-                plot_results(y_test, y_pred, ob)
+                plot_results(y_test, y_pred, ob, x)
 
             elif validation_method == "交差検証":
                 scores = cross_val_score(lr, df_ex.values, df_ob.values, cv=5, scoring='r2')
@@ -219,7 +219,7 @@ if uploaded_files:
 
                 lr.fit(df_ex.values, df_ob.values)
                 y_pred = lr.predict(df_ex.values)
-                plot_results(df_ob, y_pred, ob)
+                plot_results(df_ob, y_pred, ob, x)
 
             elif validation_method == "k-fold":
                 kf = KFold(n_splits=5)
@@ -235,7 +235,7 @@ if uploaded_files:
                     y_test_all.extend(y_test)
                     y_pred_all.extend(lr.predict(X_test))
                 st.write(f"k-foldスコア (平均): {np.mean(scores)}")
-                plot_results(y_test_all, y_pred_all, ob)
+                plot_results(y_test_all, y_pred_all, ob, x)
 
             joblib.dump(lr, model_filename)
             st.success(f"モデルが{model_filename}として保存されました")
@@ -255,7 +255,7 @@ if uploaded_files:
                 st.write(f"テストスコア: {test_score}")
 
                 y_pred = lr.predict(X_test)
-                plot_results(y_test, y_pred, ob)
+                plot_results(y_test, y_pred, ob, x)
 
             elif validation_method == "交差検証":
                 scores = cross_val_score(lr, df_ex.values, df_ob.values, cv=5, scoring='accuracy')
@@ -263,7 +263,7 @@ if uploaded_files:
 
                 lr.fit(df_ex.values, df_ob.values)
                 y_pred = lr.predict(df_ex.values)
-                plot_results(df_ob, y_pred, ob)
+                plot_results(df_ob, y_pred, ob, x)
 
             elif validation_method == "k-fold":
                 kf = KFold(n_splits=5)
@@ -279,7 +279,7 @@ if uploaded_files:
                     y_test_all.extend(y_test)
                     y_pred_all.extend(lr.predict(X_test))
                 st.write(f"k-foldスコア (平均): {np.mean(scores)}")
-                plot_results(y_test_all, y_pred_all, ob)
+                plot_results(y_test_all, y_pred_all, ob, x)
 
             joblib.dump(lr, model_filename)
             st.success(f"モデルが{model_filename}として保存されました")
@@ -299,7 +299,7 @@ if uploaded_files:
                 st.write(f"テストスコア: {test_score}")
 
                 y_pred = lgbm.predict(X_test)
-                plot_results(y_test, y_pred, ob)
+                plot_results(y_test, y_pred, ob, x)
 
             elif validation_method == "交差検証":
                 scores = cross_val_score(lgbm, df_ex.values, df_ob.values, cv=5, scoring='r2')
@@ -307,7 +307,7 @@ if uploaded_files:
 
                 lgbm.fit(df_ex.values, df_ob.values)
                 y_pred = lgbm.predict(df_ex.values)
-                plot_results(df_ob, y_pred, ob)
+                plot_results(df_ob, y_pred, ob, x)
 
             elif validation_method == "k-fold":
                 kf = KFold(n_splits=5)
@@ -323,7 +323,7 @@ if uploaded_files:
                     y_test_all.extend(y_test)
                     y_pred_all.extend(lgbm.predict(X_test))
                 st.write(f"k-foldスコア (平均): {np.mean(scores)}")
-                plot_results(y_test_all, y_pred_all, ob)
+                plot_results(y_test_all, y_pred_all, ob, x)
 
             joblib.dump(lgbm, model_filename)
             st.success(f"モデルが{model_filename}として保存されました")
@@ -343,7 +343,7 @@ if uploaded_files:
                 st.write(f"テストスコア: {test_score}")
 
                 y_pred = cb.predict(X_test)
-                plot_results(y_test, y_pred, ob)
+                plot_results(y_test, y_pred, ob, x)
 
             elif validation_method == "交差検証":
                 scores = cross_val_score(cb, df_ex.values, df_ob.values, cv=5, scoring='r2')
@@ -351,7 +351,7 @@ if uploaded_files:
 
                 cb.fit(df_ex.values, df_ob.values)
                 y_pred = cb.predict(df_ex.values)
-                plot_results(df_ob, y_pred, ob)
+                plot_results(df_ob, y_pred, ob, x)
 
             elif validation_method == "k-fold":
                 kf = KFold(n_splits=5)
@@ -367,7 +367,7 @@ if uploaded_files:
                     y_test_all.extend(y_test)
                     y_pred_all.extend(cb.predict(X_test))
                 st.write(f"k-foldスコア (平均): {np.mean(scores)}")
-                plot_results(y_test_all, y_pred_all, ob)
+                plot_results(y_test_all, y_pred_all, ob, x)
 
             joblib.dump(cb, model_filename)
             st.success(f"モデルが{model_filename}として保存されました")
