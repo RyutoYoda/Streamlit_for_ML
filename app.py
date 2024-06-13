@@ -61,7 +61,7 @@ with st.expander("Draco AIの説明と使い方を表示"):
         6.　　学習済みモデルを使用して再予測する場合はサイドバーからモデルとデータをロードできます。
     """)
 
-st.markdown("#### 機械学習に使用するCSVまたはExcelファイルを入力してください")
+st.markdown("#### 機械学習に使用するCSVまたはExcelファイルをアップロードしてください")
 uploaded_files = st.file_uploader("ファイルを選択してください", type=['csv', 'xlsx'], accept_multiple_files=False)
 
 def preprocess_data(df, ex, ob, encoding_type):
