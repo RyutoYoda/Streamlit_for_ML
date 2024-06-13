@@ -58,9 +58,10 @@ with st.expander("Draco AIの説明と使い方を表示"):
         3. 説明変数と目的変数を選択し、エンコーディングの方法を選びます。
         4. 使用する機械学習モデルを選択し、モデルのトレーニングと予測を行います。
         5. 結果を確認し、予測と実際の値のグラフを比較します。
+        6.　　学習済みモデルを使用して再予測する場合はサイドバーからモデルとデータをロードできます。
     """)
 
-st.markdown("### 機械学習に使用するCSVまたはExcelファイルを入力してください")
+st.markdown("#### 機械学習に使用するCSVまたはExcelファイルを入力してください")
 uploaded_files = st.file_uploader("ファイルを選択してください", type=['csv', 'xlsx'], accept_multiple_files=False)
 
 def preprocess_data(df, ex, ob, encoding_type):
