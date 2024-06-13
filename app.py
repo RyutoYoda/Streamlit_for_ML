@@ -175,6 +175,7 @@ if uploaded_files:
 
     eval_metric = st.selectbox("評価指標を選択してください", ["R2スコア", "MAPE", "MSE"])
     validation_method = st.selectbox("評価方法を選択してください", ["ホールドアウト", "交差検証", "k-fold"])
+    test_size = st.slider("テストデータの割合", 0.1, 0.9, 0.3)
 
     def evaluate_model(model, X_train, X_test, y_train, y_test, eval_metric):
         y_pred_train = model.predict(X_train)
@@ -216,7 +217,7 @@ if uploaded_files:
             df_ex, df_ob, original_ex = preprocess_data(df, ex, ob, encoding_type)
 
             if validation_method == "ホールドアウト":
-                X_train, X_test, y_train, y_test = train_test_split(df_ex, df_ob, test_size=0.3)
+                X_train, X_test, y_train, y_test = train_test_split(df_ex, df_ob, test_size=test_size)
                 lr.fit(X_train, y_train)
                 train_score, test_score = evaluate_model(lr, X_train, X_test, y_train, y_test, eval_metric)
                 st.write(f"トレーニングスコア: {train_score}")
@@ -260,7 +261,7 @@ if uploaded_files:
             df_ex, df_ob, original_ex = preprocess_data(df, ex, ob, encoding_type)
 
             if validation_method == "ホールドアウト":
-                X_train, X_test, y_train, y_test = train_test_split(df_ex, df_ob, test_size=0.3)
+                X_train, X_test, y_train, y_test = train_test_split(df_ex, df_ob, test_size=test_size)
                 lr.fit(X_train, y_train)
                 train_score, test_score = evaluate_model(lr, X_train, X_test, y_train, y_test, eval_metric)
                 st.write(f"トレーニングスコア: {train_score}")
@@ -304,7 +305,7 @@ if uploaded_files:
             df_ex, df_ob, original_ex = preprocess_data(df, ex, ob, encoding_type)
 
             if validation_method == "ホールドアウト":
-                X_train, X_test, y_train, y_test = train_test_split(df_ex, df_ob, test_size=0.3)
+                X_train, X_test, y_train, y_test = train_test_split(df_ex, df_ob, test_size=test_size)
                 lgbm.fit(X_train, y_train)
                 train_score, test_score = evaluate_model(lgbm, X_train, X_test, y_train, y_test, eval_metric)
                 st.write(f"トレーニングスコア: {train_score}")
@@ -348,7 +349,7 @@ if uploaded_files:
             df_ex, df_ob, original_ex = preprocess_data(df, ex, ob, encoding_type)
 
             if validation_method == "ホールドアウト":
-                X_train, X_test, y_train, y_test = train_test_split(df_ex, df_ob, test_size=0.3)
+                X_train, X_test, y_train, y_test = train_test_split(df_ex, df_ob, test_size=test_size)
                 cb.fit(X_train, y_train)
                 train_score, test_score = evaluate_model(cb, X_train, X_test, y_train, y_test, eval_metric)
                 st.write(f"トレーニングスコア: {train_score}")
