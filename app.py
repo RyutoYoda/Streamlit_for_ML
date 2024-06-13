@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import japanize_matplotlib
 import seaborn as sns
 import plotly.graph_objects as go
+from streamlit import markdown as mkd
 from sklearn.model_selection import train_test_split, cross_val_score, KFold
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
@@ -166,10 +167,11 @@ if uploaded_files:
         st.plotly_chart(fig)
 
     st.markdown("### モデリング")
-    st.markdown('<p style="color:blue;">説明変数を選択してください（※先頭の変数がX軸のラベルとして表示されます。）</p>', unsafe_allow_html=True)
-    ex = st.multiselect("", df_columns)
-    st.markdown('<p style="color:red;">目的変数を選択してください</p>', unsafe_allow_html=True)
-    ob = st.selectbox("", df_columns)
+
+　　　　　　　　mkd('<p style="color:orange;margin-bottom:0;">説明変数を選択してください（※先頭の変数がX軸のラベルとして表示されます。）</p>', unsafe_allow_html=True)
+　　　　　　　　ex = st.multiselect("", df_columns)
+　　　　　　　　mkd('<p style="color:red;margin-bottom:0;">目的変数を選択してください</p>', unsafe_allow_html=True)
+　　　　　　　　ob = st.selectbox("", df_columns)
     encoding_type = st.selectbox("エンコーディングタイプを選択してください", ["Label Encoding", "One-Hot Encoding"])
     ml_menu = st.selectbox("実施する機械学習のタイプを選択してください",
                            ["重回帰分析", "ロジスティック回帰分析", "LightGBM", "Catboost"])
