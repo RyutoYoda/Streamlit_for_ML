@@ -168,7 +168,7 @@ if uploaded_files:
 
     st.markdown("### モデリング")
     mkd('<p style="color:orange;margin-bottom:0;">説明変数を選択してください（※先頭の変数がX軸のラベルとして表示されます。）</p>', unsafe_allow_html=True)
-　　　　　　　　ex = st.multiselect("", df_columns)
+    ex = st.multiselect("", df_columns)
 　　　　　　　　mkd('<p style="color:red;margin-bottom:0;">目的変数を選択してください</p>', unsafe_allow_html=True)
 　　　　　　　　ob = st.selectbox("", df_columns)
     encoding_type = st.selectbox("エンコーディングタイプを選択してください", ["Label Encoding", "One-Hot Encoding"])
