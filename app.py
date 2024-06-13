@@ -167,7 +167,8 @@ if uploaded_files:
 
     st.markdown("### モデリング")
     ex = st.multiselect("説明変数を選択してください（※先頭の変数がX軸のラベルとして表示されます。）", df_columns)
-    ob = st.selectbox("目的変数を選択してください", df_columns)
+    st.markdown('<p style="color:red;">目的変数を選択してください</p>', unsafe_allow_html=True)
+    ob = st.selectbox("", df_columns)
     encoding_type = st.selectbox("エンコーディングタイプを選択してください", ["Label Encoding", "One-Hot Encoding"])
     ml_menu = st.selectbox("実施する機械学習のタイプを選択してください",
                            ["重回帰分析", "ロジスティック回帰分析", "LightGBM", "Catboost"])
