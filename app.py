@@ -53,15 +53,15 @@ with st.expander("Draco AIの説明と使い方を表示"):
         このアプリは、機械学習モデルを使用してデータを分析し、予測を行うためのツールです。
         以下の手順に従って使用してください。
 
-        1. サイドバーからCSVまたはExcelファイルをアップロードします。
+        1. 分析に使用したいCSVまたはExcelファイルをアップロードします。
         2. アップロードされたデータを確認し、必要に応じて可視化を行います。
         3. 説明変数と目的変数を選択し、エンコーディングの方法を選びます。
         4. 使用する機械学習モデルを選択し、モデルのトレーニングと予測を行います。
         5. 結果を確認し、予測と実際の値のグラフを比較します。
     """)
 
-st.sidebar.markdown("### 機械学習に使用するCSVまたはExcelファイルを入力してください")
-uploaded_files = st.sidebar.file_uploader("ファイルを選択してください", type=['csv', 'xlsx'], accept_multiple_files=False)
+st.markdown("### 機械学習に使用するCSVまたはExcelファイルを入力してください")
+uploaded_files = st.file_uploader("ファイルを選択してください", type=['csv', 'xlsx'], accept_multiple_files=False)
 
 def preprocess_data(df, ex, ob, encoding_type):
     original_ex = df[ex].copy()  # エンコーディング前のデータを保存
@@ -165,7 +165,7 @@ if uploaded_files:
         st.plotly_chart(fig)
 
     st.markdown("### モデリング")
-    ex = st.multiselect("説明変数を選択してください（複数選択可）", df_columns)
+    ex = st.multiselect("説明変数を選択してください（※先頭の変数がX軸のラベルとして表示されます。）", df_columns)
     ob = st.selectbox("目的変数を選択してください", df_columns)
     encoding_type = st.selectbox("エンコーディングタイプを選択してください", ["Label Encoding", "One-Hot Encoding"])
     ml_menu = st.selectbox("実施する機械学習のタイプを選択してください",
@@ -387,7 +387,7 @@ if uploaded_files:
             model_download_link = download_link(open(model_filename, "rb").read(), model_filename, '保存したモデルをダウンロード')
             st.markdown(model_download_link, unsafe_allow_html=True)
 
-st.sidebar.markdown("### 保存されたモデルをアップロードして予測を行う")
+st.sidebar.markdown("### 学習済みモデルをアップロードして予測を行う")
 uploaded_model = st.sidebar.file_uploader("モデルファイルを選択してください", type=["pkl"])
 uploaded_data = st.sidebar.file_uploader("予測用のデータファイルを選択してください", type=['csv', 'xlsx'])
 
