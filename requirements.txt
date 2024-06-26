@@ -6,7 +6,7 @@ japanize-matplotlib
 seaborn
 scikit-learn
 lightgbm
-catboost
+catboost==1.0.6
 plotly
 python-dotenv
 openpyxl
