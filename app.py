@@ -11,9 +11,7 @@ from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from sklearn.metrics import r2_score, mean_absolute_percentage_error, mean_squared_error
 import lightgbm as lgb
-from catboost import CatBoost, Pool
-from catboost import Pool, CatBoostRegressor
-from catboost import CatBoostClassifier, Pool
+from catboost import CatBoostRegressor, CatBoostClassifier
 from dotenv import load_dotenv
 import base64
 import joblib
