@@ -6,8 +6,8 @@ japanize-matplotlib
 seaborn
 scikit-learn
 lightgbm
-catboost
 plotly
 python-dotenv
 openpyxl
 joblib
+--upgrade catboost
