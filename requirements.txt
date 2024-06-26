@@ -10,4 +10,4 @@ plotly
 python-dotenv
 openpyxl
 joblib
---upgrade catboost
+catboost
