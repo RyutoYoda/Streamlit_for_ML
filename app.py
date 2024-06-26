@@ -319,7 +319,7 @@ if uploaded_files:
                 plot_results(original_ex.loc[X_test.index, ex[0]], y_test, y_pred, ob, ex[0])
 
             elif validation_method == "交差検証":
-                scores = cross_val_score(lgbm, df_ex, df_ob, cv=5, scoring='r2')
+                scores = cross_val_score(lgbm, df_ex, df_ob, cv=5, scoring='r2') 
                 st.write(f"交差検証スコア (R2): {scores.mean()}")
 
                 lgbm.fit(df_ex, df_ob)
