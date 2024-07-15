@@ -32,7 +32,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<h1>Draco AI🪬</h1>', unsafe_allow_html=True)
+st.markdown('<h1>Draco AI💪🪬</h1>', unsafe_allow_html=True)
 
 def load_image(image_path):
     with open(image_path, "rb") as img_file:
