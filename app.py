@@ -422,11 +422,11 @@ if uploaded_model and uploaded_data:
             df_ob_sorted = df_ob[sorted_indices]
             y_pred_sorted = y_pred[sorted_indices]
             
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(x=original_ex_sorted[x_axis], y=df_ob_sorted, mode='lines', name='実際の値', line=dict(color='blue')))
-            fig.add_trace(go.Scatter(x=original_ex_sorted[x_axis], y=y_pred_sorted, mode='lines', name='予測値', line=dict(color='red')))
-            fig.update_layout(xaxis_title=x_axis, yaxis_title=ob)
-            st.plotly_chart(fig)
+            # fig = go.Figure()
+            # fig.add_trace(go.Scatter(x=original_ex_sorted[x_axis], y=df_ob_sorted, mode='lines', name='実際の値', line=dict(color='blue')))
+            # fig.add_trace(go.Scatter(x=original_ex_sorted[x_axis], y=y_pred_sorted, mode='lines', name='予測値', line=dict(color='red')))
+            # fig.update_layout(xaxis_title=x_axis, yaxis_title=ob)
+            # st.plotly_chart(fig)
 
             fig = go.Figure()
             fig.add_trace(go.Bar(x=original_ex_sorted[x_axis], y=df_ob_sorted, name='実際の値', marker=dict(color='blue')))
