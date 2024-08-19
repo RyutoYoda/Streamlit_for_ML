@@ -203,11 +203,11 @@ if uploaded_files:
         y_test_sorted = np.array(y_test)[sorted_indices]
         y_pred_sorted = np.array(y_pred)[sorted_indices]
 
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=original_x_sorted, y=y_test_sorted, mode='lines', name='実際の値', line=dict(color='blue')))
-        fig.add_trace(go.Scatter(x=original_x_sorted, y=y_pred_sorted, mode='lines', name='予測値', line=dict(color='red')))
-        fig.update_layout(xaxis_title=x_label, yaxis_title=ob)
-        st.plotly_chart(fig)
+        # fig = go.Figure()
+        # fig.add_trace(go.Scatter(x=original_x_sorted, y=y_test_sorted, mode='lines', name='実際の値', line=dict(color='blue')))
+        # fig.add_trace(go.Scatter(x=original_x_sorted, y=y_pred_sorted, mode='lines', name='予測値', line=dict(color='red')))
+        # fig.update_layout(xaxis_title=x_label, yaxis_title=ob)
+        # st.plotly_chart(fig)
 
         fig = go.Figure()
         fig.add_trace(go.Bar(x=original_x_sorted, y=y_test_sorted, name='実際の値', marker=dict(color='blue')))
@@ -417,10 +417,10 @@ if uploaded_model and uploaded_data:
             st.markdown("### 予測結果")
             x_axis = st.selectbox("X軸に使用する説明変数を選択してください", ex, key="x_axis")
             
-            # sorted_indices = np.argsort(original_ex[x_axis])
-            # original_ex_sorted = original_ex.iloc[sorted_indices]
-            # df_ob_sorted = df_ob[sorted_indices]
-            # y_pred_sorted = y_pred[sorted_indices]
+            sorted_indices = np.argsort(original_ex[x_axis])
+            original_ex_sorted = original_ex.iloc[sorted_indices]
+            df_ob_sorted = df_ob[sorted_indices]
+            y_pred_sorted = y_pred[sorted_indices]
             
             # fig = go.Figure()
             # fig.add_trace(go.Scatter(x=original_ex_sorted[x_axis], y=df_ob_sorted, mode='lines', name='実際の値', line=dict(color='blue')))
